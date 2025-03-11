@@ -4,7 +4,9 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { PlusCircle, Bell, User, Search, Flame, Award, Calendar, Menu } from 'lucide-react'
 import { useModal } from '@/context/ModalContext'
+import { useNotification } from '@/context/NotificationContext'
 import StreakPopover from '@/components/features/StreakPopover'
+import NotificationsPopover from '@/components/features/NotificationsPopover'
 
 interface HeaderProps {
   toggleSidebar?: () => void
@@ -13,7 +15,9 @@ interface HeaderProps {
 
 export default function Header({ toggleSidebar, isMobile = false }: HeaderProps) {
   const { openRecordActivityModal } = useModal()
+  const { notifications, unreadCount, markAllAsRead } = useNotification()
   const [isStreakPopoverOpen, setIsStreakPopoverOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   
   // Mock data for streak count
   const currentStreak = 14
@@ -90,11 +94,17 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             
             <div className="flex items-center space-x-2 lg:space-x-4">
               {/* Notifications */}
-              <button className="relative p-1">
+              <button 
+                className="relative p-1"
+                onClick={() => setIsNotificationsOpen(true)}
+                aria-label="Notifications"
+              >
                 <Bell className="h-5 w-5 text-gray-500" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                  2
-                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
               
               {/* User Profile */}
@@ -112,6 +122,14 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
         onClose={() => setIsStreakPopoverOpen(false)}
         currentStreak={currentStreak}
         personalBest={personalBest}
+      />
+
+      {/* Notifications Popover */}
+      <NotificationsPopover
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkAsRead={markAllAsRead}
       />
     </>
   )
