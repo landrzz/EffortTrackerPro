@@ -2,12 +2,14 @@
 
 import React from 'react'
 import { PlusCircle, Bell, Filter, ArrowUpDown } from 'lucide-react'
+import { useModal } from '@/context/ModalContext'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { openRecordActivityModal } = useModal()
   return (
     <div className="space-y-6">
       <div className="bg-white p-4 rounded-xl shadow-sm">
@@ -24,7 +26,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="flex items-center text-sm font-medium text-primary">
+            <button 
+              className="flex items-center text-sm font-medium text-primary"
+              onClick={openRecordActivityModal}
+            >
               <PlusCircle className="h-4 w-4 mr-1" />
               Quick Action
             </button>
@@ -39,7 +44,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       
       {children}
       
-      <button className="fixed right-6 bottom-6 bg-primary text-white rounded-full p-3 shadow-lg hover:bg-opacity-90 transition-all lg:hidden">
+      <button 
+        className="fixed right-6 bottom-6 bg-primary text-white rounded-full p-3 shadow-lg hover:bg-opacity-90 transition-all lg:hidden"
+        onClick={openRecordActivityModal}
+      >
         <PlusCircle className="h-6 w-6" />
       </button>
     </div>

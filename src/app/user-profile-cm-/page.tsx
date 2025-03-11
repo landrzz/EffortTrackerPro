@@ -39,7 +39,8 @@ export default function UserProfilePage() {
               </div>
             </div>
             
-            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hidden">
+              {/* Change Photo button hidden for now */}
               Change Photo
             </button>
           </div>
@@ -128,7 +129,8 @@ export default function UserProfilePage() {
               <h3 className="text-lg font-medium mb-4">Security Settings</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hidden">
+                  {/* Change Password section hidden for now */}
                   <div className="flex items-start">
                     <Lock className="h-5 w-5 text-gray-500 mt-0.5 mr-3 flex-shrink-0" />
                     <div>
@@ -161,7 +163,8 @@ export default function UserProfilePage() {
                   <button className="btn-secondary text-sm">Manage</button>
                 </div>
                 
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hidden">
+                  {/* Payment Methods section hidden for now */}
                   <div className="flex items-start">
                     <CreditCard className="h-5 w-5 text-gray-500 mt-0.5 mr-3 flex-shrink-0" />
                     <div>

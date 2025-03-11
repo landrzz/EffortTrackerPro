@@ -40,7 +40,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
               </button>
             )}
             
-            <Link href="/" className="text-xl font-semibold text-darkNavy">
+            <Link href="/" className="text-xl font-bold text-white px-3 py-1.5 rounded-md bg-primary shadow-sm">
               {isMobile ? 'Tracker' : 'Activity Dashboard'}
             </Link>
             
