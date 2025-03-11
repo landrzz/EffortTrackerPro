@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ModalProvider } from '@/context/ModalContext'
 import { NotificationProvider } from '@/context/NotificationContext'
+import { AuthProvider } from '@/context/auth/AuthContext'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -24,7 +25,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans bg-bgGray min-h-screen`}>
         <ModalProvider>
           <NotificationProvider>
-            {children}
+            <AuthProvider>
+              {children}
+            </AuthProvider>
           </NotificationProvider>
         </ModalProvider>
       </body>
