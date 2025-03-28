@@ -57,7 +57,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
           <div className="flex items-center space-x-2 lg:space-x-5">
             {/* Streak Counter - only show on tablet and up */}
             <div 
-              className="hidden sm:flex items-center bg-primary bg-opacity-10 px-2 py-1.5 lg:px-3 lg:py-2 rounded-lg cursor-pointer hover:bg-opacity-20 transition-all"
+              className="hidden sm:flex items-center bg-primary bg-opacity-10 px-2 py-1.5 lg:px-3 lg:py-2 rounded-lg cursor-pointer hover:bg-opacity-20 transition-all h-[42px] lg:h-[46px]"
               title="Your prospecting streak - days in a row you've completed prospecting activities"
               onClick={() => setIsStreakPopoverOpen(true)}
             >
@@ -79,15 +79,15 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             {/* Record Activity Button - condensed on mobile */}
             <button 
               onClick={openRecordActivityModal} 
-              className="btn-primary flex items-center p-2 lg:px-4 lg:py-2"
+              className="btn-primary flex items-center px-2 py-1.5 lg:px-4 lg:py-2 rounded-lg h-[42px] lg:h-[46px]"
               aria-label="Record Activity"
             >
-              <PlusCircle className="h-4 w-4" />
+              <PlusCircle className="h-4 w-4 lg:h-5 lg:w-5" />
               <span className="ml-1 lg:ml-2 text-sm hidden sm:inline-block">Record Activity</span>
             </button>
             
             {/* Points - hide on smallest screens */}
-            <div className="hidden xs:flex items-center space-x-1 px-2 py-1.5 lg:px-3 lg:py-1.5 bg-secondary bg-opacity-20 rounded-lg">
+            <div className="hidden xs:flex items-center space-x-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-secondary bg-opacity-20 rounded-lg h-[42px] lg:h-[46px]">
               <span className="text-secondary font-semibold text-sm">20</span>
               <span className="text-xs text-gray-500 hidden sm:inline">Points</span>
             </div>
