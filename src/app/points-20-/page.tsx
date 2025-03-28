@@ -57,7 +57,7 @@ export default function PointsPage() {
             <div className="bg-primary p-6 text-white text-center">
               <Award className="h-12 w-12 mx-auto mb-2" />
               <h2 className="text-2xl font-bold">20 Points</h2>
-              <p className="text-sm opacity-80">Your current balance</p>
+              <p className="text-sm opacity-80">Your lifetime points</p>
             </div>
             
             <div className="p-4">

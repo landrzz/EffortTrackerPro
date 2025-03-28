@@ -106,7 +106,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       
       <footer className={`${isMobile ? '' : 'lg:pl-[200px]'} py-4 text-center text-gray-500 text-sm border-t border-gray-200 transition-all duration-300`}>
         <div className="max-w-[1200px] mx-auto px-4 lg:px-6">
-          <p>© 2023 Activity Tracking Dashboard. All rights reserved.</p>
+          <p>© 2025 PACE Activity Tracking Dashboard. All rights reserved.</p>
         </div>
       </footer>
     </div>

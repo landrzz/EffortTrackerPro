@@ -94,7 +94,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             
             <div className="flex items-center space-x-2 lg:space-x-4">
               {/* Notifications */}
-              <button 
+              {/* <button 
                 className="relative p-1"
                 onClick={() => setIsNotificationsOpen(true)}
                 aria-label="Notifications"
@@ -105,7 +105,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
                     {unreadCount}
                   </span>
                 )}
-              </button>
+              </button> */}
               
               {/* User Profile */}
               <Link href="/user-profile-cm-" className="flex items-center justify-center h-8 w-8 lg:h-9 lg:w-9 bg-primary text-white rounded-full font-medium">
@@ -125,12 +125,12 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
       />
 
       {/* Notifications Popover */}
-      <NotificationsPopover
+      {/* <NotificationsPopover
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
         notifications={notifications}
         onMarkAsRead={markAllAsRead}
-      />
+      /> */}
     </>
   )
 } 

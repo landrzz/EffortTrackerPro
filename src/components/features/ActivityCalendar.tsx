@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight, CheckCircle, Calendar } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function ActivityCalendar() {
+  const router = useRouter()
   const [currentMonth, setCurrentMonth] = useState(new Date())
   
   const monthNames = ["January", "February", "March", "April", "May", "June",
@@ -113,7 +115,10 @@ export default function ActivityCalendar() {
             <span className="font-medium">5-day streak!</span> Keep it up.
           </span>
         </div>
-        <button className="flex items-center text-sm text-primary font-medium">
+        <button 
+          className="flex items-center text-sm text-primary font-medium"
+          onClick={() => router.push('/activity-log')}
+        >
           <Calendar className="h-4 w-4 mr-1" />
           All Activities
         </button>

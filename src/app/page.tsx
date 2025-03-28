@@ -36,7 +36,7 @@ export default function Home() {
         <div className="col-span-1 md:col-span-12">
           <ActivityMetrics />
         </div>
-        <div className="col-span-1 md:col-span-12">
+        <div className="col-span-1 md:col-span-12 hidden">
           <LoanAnniversaries />
         </div>
       </div>

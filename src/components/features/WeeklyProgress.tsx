@@ -84,10 +84,10 @@ export default function WeeklyProgress() {
     <div className="card">
       <div className="flex justify-between items-center mb-4 md:mb-6">
         <h3 className="text-base md:text-lg font-semibold text-darkNavy">Weekly Progress</h3>
-        <button className="text-primary text-xs md:text-sm font-medium flex items-center">
+        {/* <button className="text-primary text-xs md:text-sm font-medium flex items-center">
           View Details
           <ArrowRight className="ml-1 h-3 w-3 md:h-4 md:w-4" />
-        </button>
+        </button> */}
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-2">
