@@ -50,17 +50,20 @@ export default function UserProfilePage() {
               <button className="text-primary border-b-2 border-primary pb-2 font-medium">
                 Personal Info
               </button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">
+              {/* Security button hidden as requested */}
+              <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Security
               </button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">
+              {/* Notifications button disabled as requested */}
+              <button className="text-gray-400 pb-2 cursor-not-allowed" disabled>
                 Notifications
               </button>
               {/* Payment Methods button hidden as requested */}
               <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Payment Methods
               </button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">
+              {/* Privacy button hidden as requested */}
+              <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Privacy
               </button>
             </div>
@@ -108,7 +111,7 @@ export default function UserProfilePage() {
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">This email is used for notifications and account recovery</p>
+                {/* <p className="text-xs text-gray-500 mt-1">This email is used for notifications and account recovery</p> */}
               </div>
               
               <div>
@@ -127,9 +130,9 @@ export default function UserProfilePage() {
             </div>
             
             <div>
-              <h3 className="text-lg font-medium mb-4">Security Settings</h3>
+              {/* <h3 className="text-lg font-medium mb-4">Security Settings</h3> */}
               
-              <div className="space-y-4">
+              <div className="space-y-4 hidden">
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hidden">
                   {/* Change Password section hidden for now */}
                   <div className="flex items-start">
@@ -178,7 +181,7 @@ export default function UserProfilePage() {
               </div>
             </div>
             
-            <div>
+            <div className="hidden">
               <h3 className="text-lg font-medium mb-4">Privacy Settings</h3>
               
               <div className="space-y-3">
