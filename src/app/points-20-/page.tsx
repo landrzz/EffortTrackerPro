@@ -48,7 +48,7 @@ export default function PointsPage() {
     <MainLayout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-darkNavy">Reward Points</h1>
-        <p className="text-gray-600 mt-1">Earn and redeem points for financial activities</p>
+        <p className="text-gray-600 mt-1">Earn points for completing activities!</p>
       </div>
       
       <DashboardLayout>
@@ -122,7 +122,8 @@ export default function PointsPage() {
           
           {/* Rewards and History */}
           <div className="col-span-12 lg:col-span-8">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+            {/* Available Rewards section hidden as requested */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6 hidden">
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
                 <h2 className="text-lg font-semibold flex items-center">
                   <Gift className="h-5 w-5 text-primary mr-2" />
@@ -185,7 +186,7 @@ export default function PointsPage() {
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-lg font-semibold flex items-center">
                   <Calendar className="h-5 w-5 text-primary mr-2" />
-                  Points History
+                  Activity & Points History
                 </h2>
                 <button className="text-primary text-sm">Download</button>
               </div>
@@ -209,7 +210,7 @@ export default function PointsPage() {
           </div>
           
           {/* Points Calculator */}
-          <div className="col-span-12">
+          <div className="col-span-12 hidden">
             <div className="bg-white rounded-xl shadow-sm p-4">
               <h3 className="text-lg font-semibold mb-4">Points Calculator</h3>
               
