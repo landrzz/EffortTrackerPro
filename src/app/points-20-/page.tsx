@@ -186,7 +186,7 @@ export default function PointsPage() {
                 <Calendar className="h-5 w-5 text-primary mr-2" />
                 Activity & Points History
               </h2>
-              <button className="text-primary text-sm">Download</button>
+              {/* <button className="text-primary text-sm">Download</button> */}
             </div>
             
             <div className="divide-y divide-gray-100">

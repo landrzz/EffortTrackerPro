@@ -63,6 +63,7 @@ export async function middleware(request: NextRequest) {
                           !request.nextUrl.pathname.startsWith('/user-profile-cm-') &&
                           !request.nextUrl.pathname.startsWith('/points-20-') &&
                           !request.nextUrl.pathname.startsWith('/activity-log') &&
+                          !request.nextUrl.pathname.startsWith('/leaderboard') &&
                           request.nextUrl.pathname !== '/'
                           
   if (!session && isProtectedRoute) {
