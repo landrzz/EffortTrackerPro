@@ -1,4 +1,6 @@
-import React from 'react'
+"use client"
+
+import React, { useState } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X } from 'lucide-react'
 
@@ -20,6 +22,72 @@ interface Activity {
 }
 
 export default function ActivityLogPage() {
+  // Add state for filters
+  const [dateRange, setDateRange] = useState<string>("Last 30 days");
+  const [activityTypes, setActivityTypes] = useState<string[]>(["All Types"]);
+  const [clientTypes, setClientTypes] = useState<string[]>(["All"]);
+  const [statusFilters, setStatusFilters] = useState<string[]>(["All Statuses"]);
+  const [minValue, setMinValue] = useState<string>("");
+  const [maxValue, setMaxValue] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [appliedFilters, setAppliedFilters] = useState<string[]>(["Last 30 days", "Phone Call", "Follow Up Required"]);
+
+  // Function to clear all filters
+  const clearAllFilters = () => {
+    setDateRange("Last 30 days");
+    setActivityTypes(["All Types"]);
+    setClientTypes(["All"]);
+    setStatusFilters(["All Statuses"]);
+    setMinValue("");
+    setMaxValue("");
+    setSearchQuery("");
+    setAppliedFilters([]);
+  };
+
+  // Function to handle checkbox changes for filter groups
+  const handleCheckboxChange = (value: string, currentValues: string[], setter: React.Dispatch<React.SetStateAction<string[]>>, allValue: string) => {
+    if (value === allValue) {
+      setter([allValue]);
+    } else {
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues.filter(v => v !== allValue), value];
+      
+      setter(newValues.length === 0 ? [allValue] : newValues);
+    }
+  };
+
+  // Function to apply filters
+  const applyFilters = () => {
+    const newFilters: string[] = [];
+    
+    if (dateRange !== "Last 30 days") newFilters.push(dateRange);
+    
+    activityTypes.forEach(type => {
+      if (type !== "All Types") newFilters.push(type);
+    });
+    
+    clientTypes.forEach(type => {
+      if (type !== "All") newFilters.push(type);
+    });
+    
+    statusFilters.forEach(status => {
+      if (status !== "All Statuses") newFilters.push(status);
+    });
+    
+    if (minValue || maxValue) {
+      const valueRange = `$${minValue}${maxValue ? ' - $' + maxValue : '+'}`;
+      newFilters.push(valueRange);
+    }
+    
+    setAppliedFilters(newFilters);
+  };
+
+  // Function to remove a specific filter
+  const removeFilter = (filter: string) => {
+    setAppliedFilters(appliedFilters.filter(f => f !== filter));
+  };
+
   const activities: Activity[] = [
     {
       id: 1,
@@ -138,7 +206,11 @@ export default function ActivityLogPage() {
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <select className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary">
+                  <select 
+                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={dateRange}
+                    onChange={(e) => setDateRange(e.target.value)}
+                  >
                     <option>Last 30 days</option>
                     <option>Last 3 months</option>
                     <option>Last 6 months</option>
@@ -155,7 +227,12 @@ export default function ActivityLogPage() {
                 <div className="space-y-2">
                   {['All Types', 'Phone Call', 'Email', 'Meeting', 'Text/Message', 'Site Visit', 'Proposal'].map(type => (
                     <label key={type} className="flex items-center space-x-2">
-                      <input type="checkbox" className="h-4 w-4 text-primary" defaultChecked={type === 'All Types'} />
+                      <input 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary" 
+                        checked={activityTypes.includes(type)}
+                        onChange={() => handleCheckboxChange(type, activityTypes, setActivityTypes, 'All Types')}
+                      />
                       <span className="text-sm">{type}</span>
                     </label>
                   ))}
@@ -169,7 +246,12 @@ export default function ActivityLogPage() {
                 <div className="space-y-2">
                   {['All', 'Individual', 'Business'].map(type => (
                     <label key={type} className="flex items-center space-x-2">
-                      <input type="checkbox" className="h-4 w-4 text-primary" defaultChecked={type === 'All'} />
+                      <input 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary" 
+                        checked={clientTypes.includes(type)}
+                        onChange={() => handleCheckboxChange(type, clientTypes, setClientTypes, 'All')}
+                      />
                       <span className="text-sm">{type}</span>
                     </label>
                   ))}
@@ -183,7 +265,12 @@ export default function ActivityLogPage() {
                 <div className="space-y-2">
                   {['All Statuses', 'Follow Up Required', 'Pending Response', 'Proposal Sent', 'Waiting for Documents', 'Preparing Terms', 'Approved'].map(status => (
                     <label key={status} className="flex items-center space-x-2">
-                      <input type="checkbox" className="h-4 w-4 text-primary" defaultChecked={status === 'All Statuses'} />
+                      <input 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary" 
+                        checked={statusFilters.includes(status)}
+                        onChange={() => handleCheckboxChange(status, statusFilters, setStatusFilters, 'All Statuses')}
+                      />
                       <span className="text-sm">{status}</span>
                     </label>
                   ))}
@@ -198,18 +285,22 @@ export default function ActivityLogPage() {
                   <input 
                     type="text" 
                     placeholder="Min" 
-                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" 
+                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={minValue}
+                    onChange={(e) => setMinValue(e.target.value)}
                   />
                   <input 
                     type="text" 
                     placeholder="Max" 
-                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" 
+                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={maxValue}
+                    onChange={(e) => setMaxValue(e.target.value)}
                   />
                 </div>
               </div>
               
-              <button className="btn-primary w-full">Apply Filters</button>
-              <button className="text-primary text-sm font-medium w-full">Reset All</button>
+              <button className="btn-primary w-full" onClick={applyFilters}>Apply Filters</button>
+              <button className="text-primary text-sm font-medium w-full" onClick={clearAllFilters}>Reset All</button>
             </div>
           </div>
         </div>
@@ -222,42 +313,35 @@ export default function ActivityLogPage() {
                 <input 
                   type="text" 
                   placeholder="Search by client name, notes, or tags..." 
-                  className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                  className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                  <button className="flex items-center text-gray-600 text-sm px-3 py-2 bg-gray-50 border-r border-gray-200">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Date ▼
-                  </button>
-                  <button className="flex items-center text-gray-600 text-sm px-3 py-2 bg-white">
-                    <Filter className="h-4 w-4 mr-1" />
-                    Filter
-                  </button>
-                </div>
-                <button className="flex items-center text-gray-600 text-sm px-3 py-2 bg-gray-100 rounded-lg">
-                  <Download className="h-4 w-4 mr-1" />
-                  Export
-                </button>
+                {/* Other buttons */}
               </div>
             </div>
             
             <div className="mt-3 flex flex-wrap gap-2">
-              <div className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                Last 30 days
-                <X className="h-3 w-3 ml-1 cursor-pointer" />
-              </div>
-              <div className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                Phone Call
-                <X className="h-3 w-3 ml-1 cursor-pointer" />
-              </div>
-              <div className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                Follow Up Required
-                <X className="h-3 w-3 ml-1 cursor-pointer" />
-              </div>
-              <button className="text-primary text-xs">Clear All</button>
+              {appliedFilters.map((filter, index) => (
+                <div key={index} className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                  {filter}
+                  <X 
+                    className="h-3 w-3 ml-1 cursor-pointer" 
+                    onClick={() => removeFilter(filter)}
+                  />
+                </div>
+              ))}
+              {appliedFilters.length > 0 && (
+                <button 
+                  className="text-primary text-xs"
+                  onClick={clearAllFilters}
+                >
+                  Clear All
+                </button>
+              )}
             </div>
           </div>
           
@@ -286,11 +370,7 @@ export default function ActivityLogPage() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          {activity.status === 'follow-up-required' && (
-                            <button className="btn-primary text-xs py-1 px-2">
-                              Follow Up
-                            </button>
-                          )}
+                          {/* Removed Follow Up button as requested */}
                           <button className="p-1 rounded-full hover:bg-gray-100">
                             <MoreHorizontal className="h-5 w-5 text-gray-500" />
                           </button>
