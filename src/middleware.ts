@@ -60,6 +60,7 @@ export async function middleware(request: NextRequest) {
   // If there's no session and the user is trying to access a protected route, redirect to login
   const isProtectedRoute = !request.nextUrl.pathname.startsWith('/login') && 
                           !request.nextUrl.pathname.startsWith('/auth') && 
+                          !request.nextUrl.pathname.startsWith('/user-profile-cm-') &&
                           request.nextUrl.pathname !== '/'
                           
   if (!session && isProtectedRoute) {

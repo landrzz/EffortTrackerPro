@@ -56,7 +56,8 @@ export default function UserProfilePage() {
               <button className="text-gray-500 hover:text-gray-700 pb-2">
                 Notifications
               </button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">
+              {/* Payment Methods button hidden as requested */}
+              <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Payment Methods
               </button>
               <button className="text-gray-500 hover:text-gray-700 pb-2">
