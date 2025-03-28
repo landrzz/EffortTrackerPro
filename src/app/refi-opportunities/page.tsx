@@ -242,7 +242,7 @@ export default function RefiOpportunitiesPage() {
                 />
               </div>
               
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <button className="flex items-center text-gray-600 text-sm px-3 py-2 bg-gray-100 rounded-lg">
                   <Filter className="h-4 w-4 mr-1" />
                   Filter
@@ -251,7 +251,7 @@ export default function RefiOpportunitiesPage() {
                   <SortAsc className="h-4 w-4 mr-1" />
                   Sort
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
           

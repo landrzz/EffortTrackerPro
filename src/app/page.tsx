@@ -1,6 +1,5 @@
 import React from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import DailyProgress from '@/components/features/DailyProgress'
 import WeeklyProgress from '@/components/features/WeeklyProgress'
 import ActivityCalendar from '@/components/features/ActivityCalendar'
@@ -16,33 +15,31 @@ export default function Home() {
         <p className="text-sm md:text-base text-gray-600 mt-1">Track your activities and view progress analytics</p>
       </div>
 
-      <DashboardLayout>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-          {/* Progress Cards */}
-          <div className="col-span-1 md:col-span-12 lg:col-span-4">
-            <DailyProgress />
-          </div>
-          <div className="col-span-1 md:col-span-12 lg:col-span-8">
-            <WeeklyProgress />
-          </div>
-          
-          {/* Calendar and Insights */}
-          <div className="col-span-1 md:col-span-6">
-            <ActivityCalendar />
-          </div>
-          <div className="col-span-1 md:col-span-6">
-            <InsightsGraph />
-          </div>
-          
-          {/* Metrics and Anniversaries */}
-          <div className="col-span-1 md:col-span-12">
-            <ActivityMetrics />
-          </div>
-          <div className="col-span-1 md:col-span-12">
-            <LoanAnniversaries />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+        {/* Progress Cards */}
+        <div className="col-span-1 md:col-span-12 lg:col-span-4">
+          <DailyProgress />
         </div>
-      </DashboardLayout>
+        <div className="col-span-1 md:col-span-12 lg:col-span-8">
+          <WeeklyProgress />
+        </div>
+        
+        {/* Calendar and Insights */}
+        <div className="col-span-1 md:col-span-6">
+          <ActivityCalendar />
+        </div>
+        <div className="col-span-1 md:col-span-6">
+          <InsightsGraph />
+        </div>
+        
+        {/* Metrics and Anniversaries */}
+        <div className="col-span-1 md:col-span-12">
+          <ActivityMetrics />
+        </div>
+        <div className="col-span-1 md:col-span-12">
+          <LoanAnniversaries />
+        </div>
+      </div>
     </MainLayout>
   )
-} 
+}

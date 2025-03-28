@@ -57,20 +57,21 @@ export async function middleware(request: NextRequest) {
   // Get the session from the request
   const { data: { session } } = await supabase.auth.getSession()
 
-  // If there's no session and the user is trying to access a protected route, redirect to login
+  // If there's no session and the user is trying to access a protected route, redirect to activity log
   const isProtectedRoute = !request.nextUrl.pathname.startsWith('/login') && 
                           !request.nextUrl.pathname.startsWith('/auth') && 
                           !request.nextUrl.pathname.startsWith('/user-profile-cm-') &&
                           !request.nextUrl.pathname.startsWith('/points-20-') &&
+                          !request.nextUrl.pathname.startsWith('/activity-log') &&
                           request.nextUrl.pathname !== '/'
                           
   if (!session && isProtectedRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL('/activity-log', request.url))
   }
 
-  // If there's a session and the user is trying to access login, redirect to home
+  // If there's a session and the user is trying to access login, redirect to activity log
   if (session && request.nextUrl.pathname.startsWith('/login')) {
-    return NextResponse.redirect(new URL('/home', request.url))
+    return NextResponse.redirect(new URL('/activity-log', request.url))
   }
 
   return NextResponse.next()

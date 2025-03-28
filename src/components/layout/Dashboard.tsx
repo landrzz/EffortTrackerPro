@@ -16,14 +16,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="bg-white p-3 md:p-4 rounded-xl shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <button className="px-2 md:px-3 py-1.5 bg-gray-100 rounded-lg flex items-center text-xs md:text-sm">
+            {/* <button className="px-2 md:px-3 py-1.5 bg-gray-100 rounded-lg flex items-center text-xs md:text-sm">
               <Filter className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 text-gray-500" />
               Filters
             </button>
             <button className="px-2 md:px-3 py-1.5 bg-gray-100 rounded-lg flex items-center text-xs md:text-sm">
               <ArrowUpDown className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 text-gray-500" />
               Sort
-            </button>
+            </button> */}
           </div>
           
           <div className="flex items-center justify-between w-full sm:w-auto gap-2 sm:gap-3">

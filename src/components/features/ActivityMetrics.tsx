@@ -77,13 +77,13 @@ export default function ActivityMetrics() {
   
   return (
     <div className="space-y-3 md:space-y-4">
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <h3 className="text-base md:text-lg font-semibold text-darkNavy">Activity Metrics</h3>
         <button className="flex items-center text-xs md:text-sm text-primary">
           <PlusCircle className="h-3 w-3 md:h-4 md:w-4 mr-0.5 md:mr-1" />
           Add Metric
         </button>
-      </div>
+      </div> */}
       
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {metrics.map((metric, index) => (
