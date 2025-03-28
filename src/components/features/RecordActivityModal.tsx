@@ -202,10 +202,10 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                 <p className="text-xs text-gray-500 mt-1">Example: potential, follow-up, new-lead</p>
               </div>
               
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <input type="checkbox" id="followup" className="h-4 w-4 text-primary rounded" />
                 <label htmlFor="followup" className="text-sm text-gray-700">Schedule follow-up reminder</label>
-              </div>
+              </div> */}
               
               <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 flex items-start">
                 <HelpCircle className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0 mt-0.5" />

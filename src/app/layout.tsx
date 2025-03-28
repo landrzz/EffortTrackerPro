@@ -4,6 +4,7 @@ import './globals.css'
 import { ModalProvider } from '@/context/ModalContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import { AuthProvider } from '@/context/auth/AuthContext'
+import { GhlProvider } from '@/context/GhlContext'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -23,13 +24,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans bg-bgGray min-h-screen`}>
-        <ModalProvider>
-          <NotificationProvider>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </NotificationProvider>
-        </ModalProvider>
+        <GhlProvider>
+          <ModalProvider>
+            <NotificationProvider>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+            </NotificationProvider>
+          </ModalProvider>
+        </GhlProvider>
       </body>
     </html>
   )

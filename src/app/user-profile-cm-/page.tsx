@@ -1,10 +1,97 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import FormLayout from '@/components/layout/FormLayout'
-import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff } from 'lucide-react'
+import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+import { useGhl } from '@/context/GhlContext'
+import { getUserByGhlIds } from '@/lib/userUtils'
+import { UserProfile } from '@/lib/userUtils'
 
 export default function UserProfilePage() {
+  const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  // Format date function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long'
+    })
+  }
+  
+  // Fetch user profile data
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (!ghlUserId || !ghlLocationId) {
+        setIsLoading(false)
+        setError('Missing GHL parameters. Please ensure you have the correct URL.')
+        return
+      }
+      
+      try {
+        setIsLoading(true)
+        const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
+        
+        if (!userData) {
+          setError('User profile not found. Please check your credentials.')
+        } else {
+          setUserProfile(userData)
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err)
+        setError('Failed to load user profile. Please try again later.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    if (isGhlParamsLoaded) {
+      fetchUserProfile()
+    }
+  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Loading state
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-gray-600">Loading user profile...</p>
+          </div>
+        </div>
+      </MainLayout>
+    )
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center max-w-md p-6 bg-white rounded-lg shadow-sm">
+            <div className="text-red-500 mb-4">
+              <Shield className="h-12 w-12 mx-auto" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Profile Error</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </MainLayout>
+    )
+  }
+  
   return (
     <MainLayout>
       <FormLayout 
@@ -19,7 +106,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
             <div className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
               <Image 
-                src="https://picsum.photos/id/237/200/200" 
+                src={userProfile?.profile_image_url || "https://picsum.photos/id/237/200/200"} 
                 alt="Profile Picture"
                 fill
                 className="object-cover"
@@ -27,14 +114,14 @@ export default function UserProfilePage() {
             </div>
             
             <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl font-bold">Chris Miller</h2>
-              <p className="text-gray-600">Member since September 2021</p>
+              <h2 className="text-2xl font-bold">{userProfile?.first_name} {userProfile?.last_name}</h2>
+              <p className="text-gray-600">Member since {userProfile ? formatDate(userProfile.profile_creation_date) : 'N/A'}</p>
               <div className="flex items-center justify-center md:justify-start mt-2 space-x-2">
                 <div className="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-md font-medium">
-                  Silver Member
+                  {userProfile?.status_level || 'Member'}
                 </div>
                 <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md font-medium">
-                  Verified
+                  {userProfile?.is_active ? 'Active' : 'Inactive'}
                 </div>
               </div>
             </div>
@@ -79,7 +166,7 @@ export default function UserProfilePage() {
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input 
                     type="text" 
-                    defaultValue="Chris" 
+                    defaultValue={userProfile?.first_name || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
                   />
                 </div>
@@ -93,7 +180,7 @@ export default function UserProfilePage() {
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input 
                     type="text" 
-                    defaultValue="Miller" 
+                    defaultValue={userProfile?.last_name || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
                   />
                 </div>
@@ -107,7 +194,7 @@ export default function UserProfilePage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input 
                     type="email" 
-                    defaultValue="chris.miller@example.com" 
+                    defaultValue={userProfile?.email || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
                   />
                 </div>
@@ -122,7 +209,7 @@ export default function UserProfilePage() {
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input 
                     type="tel" 
-                    defaultValue="(555) 123-4567" 
+                    defaultValue={userProfile?.phone || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
                   />
                 </div>
@@ -242,9 +329,37 @@ export default function UserProfilePage() {
                 </div>
               </div>
             </div>
+            
+            {/* Add user stats section */}
+            <div className="pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-medium mb-4">Activity Statistics</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                  <p className="text-sm text-gray-500">Current Streak</p>
+                  <p className="text-2xl font-bold">{userProfile?.current_day_streak || 0} days</p>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                  <p className="text-sm text-gray-500">Longest Streak</p>
+                  <p className="text-2xl font-bold">{userProfile?.longest_day_streak || 0} days</p>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                  <p className="text-sm text-gray-500">Total Points</p>
+                  <p className="text-2xl font-bold">{userProfile?.total_points || 0}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-4 flex justify-end">
+              <button className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium">
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
       </FormLayout>
     </MainLayout>
   )
-} 
+}

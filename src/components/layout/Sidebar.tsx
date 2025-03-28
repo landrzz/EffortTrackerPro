@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import GhlLink from '@/components/common/GhlLink'
 import { 
   LayoutDashboard, 
   ListChecks, 
@@ -46,7 +46,7 @@ function SidebarLink({ href, icon: Icon, label, isActive, disabled = false }: Si
   }
   
   return (
-    <Link 
+    <GhlLink 
       href={href}
       className={`
         flex items-center px-4 py-3 rounded-lg text-base font-medium
@@ -60,7 +60,7 @@ function SidebarLink({ href, icon: Icon, label, isActive, disabled = false }: Si
     >
       <Icon className={`h-6 w-6 mr-3 ${isActive ? 'text-primary' : 'text-gray-500'}`} />
       {label}
-    </Link>
+    </GhlLink>
   )
 }
 
