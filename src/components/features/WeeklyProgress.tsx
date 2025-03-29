@@ -54,6 +54,7 @@ function ProgressCircle({ percentage, size, label, value }: ProgressCircleProps)
 
 export default function WeeklyProgress() {
   const [circleSize, setCircleSize] = useState(80);
+  const [currentDay, setCurrentDay] = useState(1);
   
   // Handle window resize client-side only
   useEffect(() => {
@@ -71,6 +72,28 @@ export default function WeeklyProgress() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
+  }, []);
+  
+  // Calculate current day of the week (1-7, Monday-Sunday)
+  useEffect(() => {
+    const calculateCurrentDay = () => {
+      const now = new Date();
+      // getDay() returns 0-6 (Sunday-Saturday), we need 1-7 (Monday-Sunday)
+      let day = now.getDay();
+      // Convert Sunday (0) to 7, and shift others by -1
+      day = day === 0 ? 7 : day;
+      setCurrentDay(day);
+    };
+
+    // Calculate initial day
+    calculateCurrentDay();
+
+    // Set up a timer to check for day changes
+    const timer = setInterval(() => {
+      calculateCurrentDay();
+    }, 60 * 60 * 1000); // Check every hour
+
+    return () => clearInterval(timer);
   }, []);
   
   const weeklyStats = [
@@ -105,14 +128,14 @@ export default function WeeklyProgress() {
       <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100">
         <div className="flex justify-between items-center text-xs md:text-sm">
           <span className="text-gray-500">Week Progress</span>
-          <span className="font-medium">4 of 7 days</span>
+          <span className="font-medium">{currentDay} of 7 days</span>
         </div>
         <div className="mt-2 grid grid-cols-7 gap-1">
           {[1, 2, 3, 4, 5, 6, 7].map((day) => (
             <div
               key={day}
               className={`h-1.5 md:h-2 rounded-full ${
-                day <= 4 ? 'bg-primary' : 'bg-gray-200'
+                day <= currentDay ? 'bg-primary' : 'bg-gray-200'
               }`}
             ></div>
           ))}
@@ -120,4 +143,4 @@ export default function WeeklyProgress() {
       </div>
     </div>
   )
-} 
+}
