@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import FormLayout from '@/components/layout/FormLayout'
-import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
-import { getUserByGhlIds } from '@/lib/userUtils'
+import { getUserByGhlIds, updateUserProfile, UserProfileUpdate } from '@/lib/userUtils'
 import { UserProfile } from '@/lib/userUtils'
 
 export default function UserProfilePage() {
@@ -14,6 +14,18 @@ export default function UserProfilePage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  
+  // Refs for form inputs
+  const firstNameRef = useRef<HTMLInputElement>(null)
+  const lastNameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
+  
+  // Form ref for submitting the form
+  const formRef = useRef<HTMLFormElement>(null)
   
   // Format date function
   const formatDate = (dateString: string) => {
@@ -54,6 +66,66 @@ export default function UserProfilePage() {
       fetchUserProfile()
     }
   }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Handle form submission
+  const handleSaveChanges = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+    
+    // Reset status
+    setSaveSuccess(false)
+    setSaveError(null)
+    
+    // Validate that we have a user to update
+    if (!userProfile) {
+      setSaveError('No user profile loaded to update')
+      return
+    }
+    
+    // Get values from refs
+    const updatedProfile: UserProfileUpdate = {
+      first_name: firstNameRef.current?.value || '',
+      last_name: lastNameRef.current?.value || '',
+      email: emailRef.current?.value || '',
+      phone: phoneRef.current?.value || null
+    }
+    
+    // Validate required fields
+    if (!updatedProfile.first_name || !updatedProfile.last_name || !updatedProfile.email) {
+      setSaveError('First name, last name, and email are required')
+      return
+    }
+    
+    try {
+      setIsSaving(true)
+      
+      // Update the profile using either user ID or GHL parameters
+      const updatedUser = await updateUserProfile(
+        userProfile.id,
+        ghlUserId,
+        ghlLocationId,
+        updatedProfile
+      )
+      
+      if (updatedUser) {
+        setUserProfile(updatedUser)
+        setSaveSuccess(true)
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSaveSuccess(false)
+        }, 3000)
+      } else {
+        setSaveError('Failed to update profile. Please try again.')
+      }
+    } catch (err) {
+      console.error('Error saving profile:', err)
+      setSaveError('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
   
   // Loading state
   if (isLoading) {
@@ -101,8 +173,10 @@ export default function UserProfilePage() {
           { label: 'Settings', path: '/settings' },
           { label: 'User Profile', path: '/user-profile-cm-' },
         ]}
+        onSubmit={handleSaveChanges}
+        isSubmitting={isSaving}
       >
-        <div className="space-y-8">
+        <form ref={formRef} onSubmit={handleSaveChanges} className="space-y-8">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
             <div className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
               <Image 
@@ -134,27 +208,42 @@ export default function UserProfilePage() {
           
           <div className="border-b border-gray-200 pb-2">
             <div className="flex space-x-8 overflow-x-auto">
-              <button className="text-primary border-b-2 border-primary pb-2 font-medium">
+              <button type="button" className="text-primary border-b-2 border-primary pb-2 font-medium">
                 Personal Info
               </button>
               {/* Security button hidden as requested */}
-              <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
+              <button type="button" className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Security
               </button>
               {/* Notifications button disabled as requested */}
-              <button className="text-gray-400 pb-2 cursor-not-allowed" disabled>
+              <button type="button" className="text-gray-400 pb-2 cursor-not-allowed" disabled>
                 Notifications
               </button>
               {/* Payment Methods button hidden as requested */}
-              <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
+              <button type="button" className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Payment Methods
               </button>
               {/* Privacy button hidden as requested */}
-              <button className="text-gray-500 hover:text-gray-700 pb-2 hidden">
+              <button type="button" className="text-gray-500 hover:text-gray-700 pb-2 hidden">
                 Privacy
               </button>
             </div>
           </div>
+          
+          {/* Save status messages */}
+          {saveSuccess && (
+            <div className="flex items-center p-4 bg-green-50 text-green-800 rounded-lg">
+              <CheckCircle className="h-5 w-5 mr-2" />
+              <span>Profile updated successfully!</span>
+            </div>
+          )}
+          
+          {saveError && (
+            <div className="flex items-center p-4 bg-red-50 text-red-800 rounded-lg">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              <span>{saveError}</span>
+            </div>
+          )}
           
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -168,6 +257,8 @@ export default function UserProfilePage() {
                     type="text" 
                     defaultValue={userProfile?.first_name || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                    ref={firstNameRef}
+                    required
                   />
                 </div>
               </div>
@@ -182,6 +273,8 @@ export default function UserProfilePage() {
                     type="text" 
                     defaultValue={userProfile?.last_name || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                    ref={lastNameRef}
+                    required
                   />
                 </div>
               </div>
@@ -196,6 +289,8 @@ export default function UserProfilePage() {
                     type="email" 
                     defaultValue={userProfile?.email || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                    ref={emailRef}
+                    required
                   />
                 </div>
                 {/* <p className="text-xs text-gray-500 mt-1">This email is used for notifications and account recovery</p> */}
@@ -211,6 +306,7 @@ export default function UserProfilePage() {
                     type="tel" 
                     defaultValue={userProfile?.phone || ''} 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                    ref={phoneRef}
                   />
                 </div>
               </div>
@@ -229,7 +325,7 @@ export default function UserProfilePage() {
                       <p className="text-sm text-gray-600">Update your password to maintain account security</p>
                     </div>
                   </div>
-                  <button className="btn-secondary text-sm">Update</button>
+                  <button type="button" className="btn-secondary text-sm">Update</button>
                 </div>
                 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -240,7 +336,7 @@ export default function UserProfilePage() {
                       <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
                     </div>
                   </div>
-                  <button className="btn-primary text-sm">Enable</button>
+                  <button type="button" className="btn-primary text-sm">Enable</button>
                 </div>
                 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -251,7 +347,7 @@ export default function UserProfilePage() {
                       <p className="text-sm text-gray-600">Manage how you receive updates and alerts</p>
                     </div>
                   </div>
-                  <button className="btn-secondary text-sm">Manage</button>
+                  <button type="button" className="btn-secondary text-sm">Manage</button>
                 </div>
                 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hidden">
@@ -263,7 +359,7 @@ export default function UserProfilePage() {
                       <p className="text-sm text-gray-600">Update your billing information and view payment history</p>
                     </div>
                   </div>
-                  <button className="btn-secondary text-sm">Manage</button>
+                  <button type="button" className="btn-secondary text-sm">Manage</button>
                 </div>
               </div>
             </div>
@@ -351,14 +447,8 @@ export default function UserProfilePage() {
                 </div>
               </div>
             </div>
-            
-            <div className="pt-4 flex justify-end">
-              <button className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium">
-                Save Changes
-              </button>
-            </div>
           </div>
-        </div>
+        </form>
       </FormLayout>
     </MainLayout>
   )

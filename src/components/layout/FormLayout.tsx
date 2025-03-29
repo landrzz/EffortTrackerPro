@@ -8,9 +8,17 @@ interface FormLayoutProps {
   children: React.ReactNode
   title: string
   breadcrumbs: { label: string; path: string }[]
+  onSubmit?: () => void
+  isSubmitting?: boolean
 }
 
-export default function FormLayout({ children, title, breadcrumbs }: FormLayoutProps) {
+export default function FormLayout({ 
+  children, 
+  title, 
+  breadcrumbs, 
+  onSubmit, 
+  isSubmitting = false 
+}: FormLayoutProps) {
   const router = useRouter()
   
   return (
@@ -41,15 +49,21 @@ export default function FormLayout({ children, title, breadcrumbs }: FormLayoutP
         <button 
           onClick={() => router.back()}
           className="btn-secondary"
+          type="button"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Cancel
         </button>
-        <button className="btn-primary">
+        <button 
+          onClick={onSubmit}
+          className="btn-primary"
+          type="button"
+          disabled={isSubmitting}
+        >
           <Save className="h-4 w-4 mr-2" />
-          Save Changes
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </div>
   )
-} 
+}
