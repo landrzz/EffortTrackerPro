@@ -17,11 +17,38 @@ export default function InsightsGraph() {
     { day: 'Sun', value: 65 },
   ]
   
+  // Calculate the current week and previous 3 weeks
+  const getWeekDateRange = (weeksAgo: number) => {
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Calculate the start of the current week (Sunday)
+    const startOfCurrentWeek = new Date(now);
+    startOfCurrentWeek.setDate(now.getDate() - currentDay);
+    
+    // Calculate the start of the target week
+    const startOfTargetWeek = new Date(startOfCurrentWeek);
+    startOfTargetWeek.setDate(startOfCurrentWeek.getDate() - (7 * weeksAgo));
+    
+    // Calculate the end of the target week (Saturday)
+    const endOfTargetWeek = new Date(startOfTargetWeek);
+    endOfTargetWeek.setDate(startOfTargetWeek.getDate() + 6);
+    
+    // Format the dates as MM/DD
+    const formatDate = (date: Date) => {
+      const month = date.getMonth() + 1; // getMonth() returns 0-11
+      const day = date.getDate();
+      return `${month}/${day}`;
+    };
+    
+    return `${formatDate(startOfTargetWeek)}-${formatDate(endOfTargetWeek)}`;
+  };
+  
   const weeksData = [
-    { week: 'Week 1', value: 45 },
-    { week: 'Week 2', value: 52 },
-    { week: 'Week 3', value: 68 },
-    { week: 'Week 4', value: 75 },
+    { week: getWeekDateRange(3), value: 45 },
+    { week: getWeekDateRange(2), value: 52 },
+    { week: getWeekDateRange(1), value: 68 },
+    { week: getWeekDateRange(0), value: 75 }, // Current week
   ]
   
   const maxValue = Math.max(
@@ -133,4 +160,4 @@ export default function InsightsGraph() {
       </div>
     </div>
   )
-} 
+}
