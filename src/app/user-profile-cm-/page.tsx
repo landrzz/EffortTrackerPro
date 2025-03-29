@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import FormLayout from '@/components/layout/FormLayout'
-import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Flame, Award, Trophy } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
 import { getUserByGhlIds, updateUserProfile, UserProfileUpdate } from '@/lib/userUtils'
@@ -364,85 +364,31 @@ export default function UserProfilePage() {
               </div>
             </div>
             
-            <div className="hidden">
-              <h3 className="text-lg font-medium mb-4">Privacy Settings</h3>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input 
-                      type="checkbox" 
-                      id="marketing-emails" 
-                      defaultChecked={true}
-                      className="h-4 w-4 text-primary rounded" 
-                    />
-                    <label htmlFor="marketing-emails" className="ml-2 text-sm text-gray-700">
-                      Receive marketing emails
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input 
-                      type="checkbox" 
-                      id="product-updates" 
-                      defaultChecked={true}
-                      className="h-4 w-4 text-primary rounded" 
-                    />
-                    <label htmlFor="product-updates" className="ml-2 text-sm text-gray-700">
-                      Receive product updates and announcements
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input 
-                      type="checkbox" 
-                      id="data-sharing" 
-                      defaultChecked={false}
-                      className="h-4 w-4 text-primary rounded" 
-                    />
-                    <label htmlFor="data-sharing" className="ml-2 text-sm text-gray-700">
-                      Allow data sharing with trusted partners
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input 
-                      type="checkbox" 
-                      id="activity-tracking" 
-                      defaultChecked={true}
-                      className="h-4 w-4 text-primary rounded" 
-                    />
-                    <label htmlFor="activity-tracking" className="ml-2 text-sm text-gray-700">
-                      Track activities for personalized experience
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Add user stats section */}
             <div className="pt-6 border-t border-gray-200">
               <h3 className="text-lg font-medium mb-4">Activity Statistics</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <p className="text-sm text-gray-500">Current Streak</p>
+                  <div className="flex items-center mb-1">
+                    <Flame className="h-5 w-5 text-orange-500 mr-2" />
+                    <p className="text-sm text-gray-500">Current Streak</p>
+                  </div>
                   <p className="text-2xl font-bold">{userProfile?.current_day_streak || 0} days</p>
                 </div>
                 
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <p className="text-sm text-gray-500">Longest Streak</p>
+                  <div className="flex items-center mb-1">
+                    <Award className="h-5 w-5 text-amber-500 mr-2" />
+                    <p className="text-sm text-gray-500">Longest Streak</p>
+                  </div>
                   <p className="text-2xl font-bold">{userProfile?.longest_day_streak || 0} days</p>
                 </div>
                 
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <p className="text-sm text-gray-500">Total Points</p>
+                  <div className="flex items-center mb-1">
+                    <Trophy className="h-5 w-5 text-primary mr-2" />
+                    <p className="text-sm text-gray-500">Total Points</p>
+                  </div>
                   <p className="text-2xl font-bold">{userProfile?.total_points || 0}</p>
                 </div>
               </div>
