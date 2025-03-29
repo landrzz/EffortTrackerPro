@@ -14,7 +14,8 @@ import {
   Home, 
   Building, 
   Briefcase, 
-  X
+  X,
+  Save
 } from 'lucide-react'
 
 interface RecordActivityModalProps {
@@ -95,7 +96,9 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                     <label 
                       key={clientType.id}
                       className={`relative flex items-center p-3 bg-white border ${
-                        selectedClientType === clientType.id ? 'border-primary' : 'border-gray-200'
+                        selectedClientType === clientType.id 
+                          ? 'border-primary border-2 bg-primary/5 shadow-sm' 
+                          : 'border-gray-200'
                       } rounded-lg cursor-pointer hover:border-primary transition-colors`}
                     >
                       <input 
@@ -122,7 +125,9 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                     <label 
                       key={activityType.id}
                       className={`relative flex flex-col items-center p-3 bg-white border ${
-                        selectedActivityType === activityType.id ? 'border-primary' : 'border-gray-200'
+                        selectedActivityType === activityType.id 
+                          ? 'border-primary border-2 bg-primary/5 shadow-sm' 
+                          : 'border-gray-200'
                       } rounded-lg cursor-pointer hover:border-primary transition-colors`}
                     >
                       <input 
@@ -232,7 +237,7 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
               type="submit"
               className="btn-primary w-full sm:w-auto order-1 sm:order-2"
             >
-              Save Activity
+              <Save className="h-4 w-4 mr-2" /> Save Activity
             </button>
           </div>
         </form>
