@@ -1,158 +1,37 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Search, Trophy, Filter, ArrowUpDown } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Search, Trophy, Filter, ArrowUpDown, Loader2 } from 'lucide-react'
 import Image from 'next/image'
-
-interface LeaderboardUser {
-  id: string
-  name: string
-  title: string
-  avatarUrl: string
-  activityPoints: number
-  activities: number
-  streak: number
-  rank: number
-  lastActive: string
-  change?: 'up' | 'down' | 'same'
-  changeAmount?: number
-}
+import { getLeaderboardData, LeaderboardUser } from '@/lib/leaderboardUtils'
 
 export default function Leaderboard() {
-  const [filterBy, setFilterBy] = useState('all')
+  const [filterBy, setFilterBy] = useState<'all' | 'weekly' | 'monthly'>('all')
   const [sortBy, setSortBy] = useState('points')
   const [searchQuery, setSearchQuery] = useState('')
+  const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardUser[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
-  // Mock data for leaderboard users
-  const leaderboardUsers: LeaderboardUser[] = [
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      title: 'Senior Loan Officer',
-      avatarUrl: '/avatars/avatar-1.png',
-      activityPoints: 1250,
-      activities: 45,
-      streak: 12,
-      rank: 1,
-      lastActive: 'Today',
-      change: 'same'
-    },
-    {
-      id: '2',
-      name: 'Michael Chen',
-      title: 'Loan Officer',
-      avatarUrl: '/avatars/avatar-2.png',
-      activityPoints: 1120,
-      activities: 38,
-      streak: 8,
-      rank: 2,
-      lastActive: 'Today',
-      change: 'up',
-      changeAmount: 1
-    },
-    {
-      id: '3',
-      name: 'Jessica Rodriguez',
-      title: 'Mortgage Specialist',
-      avatarUrl: '/avatars/avatar-3.png',
-      activityPoints: 980,
-      activities: 32,
-      streak: 5,
-      rank: 3,
-      lastActive: 'Yesterday',
-      change: 'up',
-      changeAmount: 2
-    },
-    {
-      id: '4',
-      name: 'David Thompson',
-      title: 'Senior Loan Officer',
-      avatarUrl: '/avatars/avatar-4.png',
-      activityPoints: 875,
-      activities: 29,
-      streak: 7,
-      rank: 4,
-      lastActive: 'Today',
-      change: 'down',
-      changeAmount: 1
-    },
-    {
-      id: '5',
-      name: 'Emily Parker',
-      title: 'Loan Consultant',
-      avatarUrl: '/avatars/avatar-5.png',
-      activityPoints: 850,
-      activities: 27,
-      streak: 3,
-      rank: 5,
-      lastActive: '2 days ago',
-      change: 'down',
-      changeAmount: 1
-    },
-    {
-      id: '6',
-      name: 'Robert Wilson',
-      title: 'Mortgage Advisor',
-      avatarUrl: '/avatars/avatar-6.png',
-      activityPoints: 780,
-      activities: 25,
-      streak: 4,
-      rank: 6,
-      lastActive: 'Today',
-      change: 'up',
-      changeAmount: 3
-    },
-    {
-      id: '7',
-      name: 'Amanda Lewis',
-      title: 'Loan Officer',
-      avatarUrl: '/avatars/avatar-7.png',
-      activityPoints: 740,
-      activities: 22,
-      streak: 6,
-      rank: 7,
-      lastActive: 'Yesterday',
-      change: 'same'
-    },
-    {
-      id: '8',
-      name: 'Brian Miller',
-      title: 'Mortgage Specialist',
-      avatarUrl: '/avatars/avatar-8.png',
-      activityPoints: 690,
-      activities: 20,
-      streak: 2,
-      rank: 8,
-      lastActive: 'Today',
-      change: 'up',
-      changeAmount: 1
-    },
-    {
-      id: '9',
-      name: 'Lisa Garcia',
-      title: 'Loan Consultant',
-      avatarUrl: '/avatars/avatar-9.png',
-      activityPoints: 650,
-      activities: 18,
-      streak: 4,
-      rank: 9,
-      lastActive: '3 days ago',
-      change: 'down',
-      changeAmount: 2
-    },
-    {
-      id: '10',
-      name: 'Kevin Wang',
-      title: 'Mortgage Advisor',
-      avatarUrl: '/avatars/avatar-10.png',
-      activityPoints: 600,
-      activities: 16,
-      streak: 1,
-      rank: 10,
-      lastActive: 'Yesterday',
-      change: 'same'
+  // Fetch leaderboard data
+  useEffect(() => {
+    async function fetchLeaderboardData() {
+      setIsLoading(true)
+      setError(null)
+      
+      try {
+        const data = await getLeaderboardData(filterBy)
+        setLeaderboardUsers(data)
+      } catch (err) {
+        console.error('Error fetching leaderboard data:', err)
+        setError('Failed to load leaderboard data. Please try again.')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+    
+    fetchLeaderboardData()
+  }, [filterBy])
   
   const filteredUsers = leaderboardUsers
     .filter(user => {
@@ -175,8 +54,8 @@ export default function Leaderboard() {
     return 'bg-blue-50 text-blue-700 border-blue-200'
   }
   
-  const getChangeIndicator = (change?: 'up' | 'down' | 'same', amount?: number) => {
-    if (!change || change === 'same') return null
+  const getChangeIndicator = (change?: 'up' | 'down' | 'same' | 'new', amount?: number) => {
+    if (!change || change === 'same' || change === 'new') return null
     
     return (
       <span className={`ml-1 text-xs flex items-center ${change === 'up' ? 'text-green-600' : 'text-red-600'}`}>
@@ -207,13 +86,12 @@ export default function Leaderboard() {
             <Filter className="h-4 w-4 text-gray-500 mr-2" />
             <select 
               value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
+              onChange={(e) => setFilterBy(e.target.value as 'all' | 'weekly' | 'monthly')}
               className="text-sm bg-transparent outline-none"
             >
               <option value="all">All Time</option>
               <option value="weekly">This Week</option>
               <option value="monthly">This Month</option>
-              <option value="yearly">This Year</option>
             </select>
           </div>
           
@@ -244,67 +122,119 @@ export default function Leaderboard() {
           <div className="col-span-2 text-center">Streak</div>
         </div>
         
+        {/* Loading state */}
+        {isLoading && (
+          <div className="py-12 flex flex-col items-center justify-center text-gray-500">
+            <Loader2 className="h-8 w-8 animate-spin mb-2" />
+            <p>Loading leaderboard data...</p>
+          </div>
+        )}
+        
+        {/* Error state */}
+        {error && !isLoading && (
+          <div className="py-12 flex flex-col items-center justify-center text-red-500">
+            <p>{error}</p>
+            <button 
+              onClick={() => getLeaderboardData(filterBy).then(data => setLeaderboardUsers(data))}
+              className="mt-4 px-4 py-2 bg-primary text-white rounded-lg text-sm"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+        
+        {/* Empty state */}
+        {!isLoading && !error && filteredUsers.length === 0 && (
+          <div className="py-12 flex flex-col items-center justify-center text-gray-500">
+            <p>No leaderboard data available.</p>
+          </div>
+        )}
+        
         {/* Leaderboard items */}
-        <div className="divide-y divide-gray-100">
-          {filteredUsers.map((user) => (
-            <div key={user.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 p-3 items-center">
-              {/* Rank - Mobile shows as badge, desktop as number */}
-              <div className="hidden md:flex col-span-1 items-center">
-                <div className={`font-bold flex items-center text-sm ${user.rank <= 3 ? 'text-yellow-600' : 'text-gray-700'}`}>
-                  {user.rank <= 3 && <Trophy className="h-3 w-3 mr-1" />}
-                  {user.rank}
-                  {getChangeIndicator(user.change, user.changeAmount)}
-                </div>
-              </div>
-              
-              {/* User info - Combined for mobile, separate for desktop */}
-              <div className="flex md:col-span-5 items-center">
-                <div className="flex md:hidden mr-2">
-                  <span className={`h-6 w-6 flex items-center justify-center rounded-full text-xs font-bold ${getRankBadgeColor(user.rank)}`}>
+        {!isLoading && !error && filteredUsers.length > 0 && (
+          <div className="divide-y divide-gray-100">
+            {filteredUsers.map((user) => (
+              <div key={user.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 p-3 items-center">
+                {/* Rank - Mobile shows as badge, desktop as number */}
+                <div className="hidden md:flex col-span-1 items-center">
+                  <div className={`font-bold flex items-center text-sm ${user.rank <= 3 ? 'text-yellow-600' : 'text-gray-700'}`}>
+                    {user.rank <= 3 && <Trophy className="h-3 w-3 mr-1" />}
                     {user.rank}
-                  </span>
-                </div>
-                <div className="h-10 w-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                  {/* Placeholder for avatar - in real app, use real images */}
-                  <div className="flex items-center justify-center h-full w-full bg-primary/10 text-primary font-bold">
-                    {user.name.charAt(0)}
+                    {getChangeIndicator(user.change, user.changeAmount)}
                   </div>
                 </div>
-                <div className="ml-3">
-                  <div className="font-medium text-sm md:text-base">{user.name}</div>
-                  <div className="text-xs text-gray-500">{user.title}</div>
+                
+                {/* User info - Combined for mobile, separate for desktop */}
+                <div className="flex md:col-span-5 items-center">
+                  <div className="flex md:hidden mr-2">
+                    <span className={`h-6 w-6 flex items-center justify-center rounded-full text-xs font-bold ${getRankBadgeColor(user.rank)}`}>
+                      {user.rank}
+                    </span>
+                  </div>
+                  <div className="h-10 w-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0 relative">
+                    {user.avatarUrl ? (
+                      <Image 
+                        src={user.avatarUrl} 
+                        alt={user.name} 
+                        width={40} 
+                        height={40}
+                        className="object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const fallback = parent.querySelector('div:last-child') as HTMLElement;
+                            if (fallback) {
+                              fallback.style.display = 'flex';
+                            }
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className="flex items-center justify-center h-full w-full bg-primary/10 text-primary font-bold absolute top-0 left-0"
+                      style={{ display: user.avatarUrl ? 'none' : 'flex' }}
+                    >
+                      {user.name.charAt(0)}
+                    </div>
+                  </div>
+                  <div className="ml-3">
+                    <div className="font-medium text-sm md:text-base">{user.name}</div>
+                    <div className="text-xs text-gray-500">{user.title}</div>
+                  </div>
+                </div>
+                
+                {/* Mobile stats - All in one row */}
+                <div className="md:hidden grid grid-cols-3 gap-2 mt-2">
+                  <div className="bg-gray-50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-gray-500">Points</div>
+                    <div className="font-medium text-sm">{user.activityPoints}</div>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-gray-500">Activities</div>
+                    <div className="font-medium text-sm">{user.activities}</div>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-gray-500">Streak</div>
+                    <div className="font-medium text-sm">{user.streak}</div>
+                  </div>
+                </div>
+                
+                {/* Desktop stats - In columns */}
+                <div className="hidden md:block col-span-2 text-center font-medium">{user.activityPoints}</div>
+                <div className="hidden md:block col-span-2 text-center">{user.activities}</div>
+                <div className="hidden md:block col-span-2 text-center">
+                  <div className="flex items-center justify-center">
+                    <span className="h-2 w-2 rounded-full bg-primary mr-1.5"></span>
+                    {user.streak} days
+                  </div>
                 </div>
               </div>
-              
-              {/* Mobile stats - All in one row */}
-              <div className="md:hidden grid grid-cols-3 gap-2 mt-2">
-                <div className="bg-gray-50 p-2 rounded-lg text-center">
-                  <div className="text-xs text-gray-500">Points</div>
-                  <div className="font-medium text-sm">{user.activityPoints}</div>
-                </div>
-                <div className="bg-gray-50 p-2 rounded-lg text-center">
-                  <div className="text-xs text-gray-500">Activities</div>
-                  <div className="font-medium text-sm">{user.activities}</div>
-                </div>
-                <div className="bg-gray-50 p-2 rounded-lg text-center">
-                  <div className="text-xs text-gray-500">Streak</div>
-                  <div className="font-medium text-sm">{user.streak}</div>
-                </div>
-              </div>
-              
-              {/* Desktop stats - In columns */}
-              <div className="hidden md:block col-span-2 text-center font-medium">{user.activityPoints}</div>
-              <div className="hidden md:block col-span-2 text-center">{user.activities}</div>
-              <div className="hidden md:block col-span-2 text-center">
-                <div className="flex items-center justify-center">
-                  <span className="h-2 w-2 rounded-full bg-primary mr-1.5"></span>
-                  {user.streak} days
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
-} 
+}
