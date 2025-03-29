@@ -10,6 +10,9 @@ import { getUserByGhlIds, UserProfile } from '@/lib/userUtils'
 import StreakPopover from '@/components/features/StreakPopover'
 import NotificationsPopover from '@/components/features/NotificationsPopover'
 
+// Cache expiration time in milliseconds (15 minutes)
+const CACHE_EXPIRATION = 15 * 60 * 1000
+
 interface HeaderProps {
   toggleSidebar?: () => void
   isMobile?: boolean
@@ -24,36 +27,96 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   
-  // Fetch user profile data
-  useEffect(() => {
-    async function fetchUserProfile() {
-      if (!ghlUserId || !ghlLocationId) {
-        setIsLoading(false)
-        return
-      }
-      
-      try {
-        setIsLoading(true)
-        const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
-        
-        if (userData) {
-          setUserProfile(userData)
-        }
-      } catch (err) {
-        console.error('Error fetching user profile:', err)
-      } finally {
-        setIsLoading(false)
-      }
+  // Function to check if cache is valid
+  const isCacheValid = (timestamp: number) => {
+    return Date.now() - timestamp < CACHE_EXPIRATION
+  }
+  
+  // Function to save profile to cache
+  const saveProfileToCache = (profile: UserProfile) => {
+    const cacheData = {
+      profile,
+      timestamp: Date.now()
+    }
+    localStorage.setItem('userProfileCache', JSON.stringify(cacheData))
+  }
+  
+  // Function to get profile from cache
+  const getProfileFromCache = (): { profile: UserProfile, timestamp: number } | null => {
+    const cachedData = localStorage.getItem('userProfileCache')
+    if (!cachedData) return null
+    
+    try {
+      return JSON.parse(cachedData)
+    } catch (e) {
+      console.error('Error parsing cached profile:', e)
+      return null
+    }
+  }
+  
+  // Function to fetch fresh profile data
+  const fetchFreshProfileData = async () => {
+    if (!ghlUserId || !ghlLocationId) {
+      setIsLoading(false)
+      return
     }
     
-    if (isGhlParamsLoaded) {
-      fetchUserProfile()
+    try {
+      setIsLoading(true)
+      const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
+      
+      if (userData) {
+        setUserProfile(userData)
+        saveProfileToCache(userData)
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err)
+    } finally {
+      setIsLoading(false)
     }
+  }
+  
+  // Fetch user profile data with caching
+  useEffect(() => {
+    if (!isGhlParamsLoaded) return
+    
+    // Try to get data from cache first
+    const cachedData = getProfileFromCache()
+    
+    if (cachedData && isCacheValid(cachedData.timestamp)) {
+      // Cache is valid, use it
+      setUserProfile(cachedData.profile)
+      setIsLoading(false)
+    } else {
+      // Cache is invalid or doesn't exist, fetch fresh data
+      fetchFreshProfileData()
+    }
+    
+    // Set up a refresh interval for points (every 2 minutes)
+    const refreshInterval = setInterval(() => {
+      fetchFreshProfileData()
+    }, 2 * 60 * 1000)
+    
+    return () => clearInterval(refreshInterval)
   }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Listen for custom event that can be triggered when points change
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      fetchFreshProfileData()
+    }
+    
+    window.addEventListener('profileDataUpdated', handleProfileUpdate)
+    
+    return () => {
+      window.removeEventListener('profileDataUpdated', handleProfileUpdate)
+    }
+  }, [])
   
   // Get streak values from user profile or use 0 as fallback
   const currentStreak = userProfile?.current_day_streak || 0
   const personalBest = userProfile?.longest_day_streak || 0
+  const totalPoints = userProfile?.total_points || 0
 
   return (
     <>
@@ -117,7 +180,11 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             
             {/* Record Activity Button - condensed on mobile */}
             <button 
-              onClick={openRecordActivityModal} 
+              onClick={() => {
+                openRecordActivityModal()
+                // After recording an activity, we'll need fresh data
+                // The modal will dispatch a profileDataUpdated event when it's done
+              }} 
               className="btn-primary flex items-center px-2 py-1.5 lg:px-4 lg:py-2 rounded-lg h-[42px] lg:h-[46px]"
               aria-label="Record Activity"
             >
@@ -127,7 +194,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             
             {/* Points - hide on smallest screens */}
             <div className="hidden xs:flex items-center space-x-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-secondary bg-opacity-20 rounded-lg h-[42px] lg:h-[46px]">
-              <span className="text-secondary font-semibold text-sm">{userProfile?.total_points || 0}</span>
+              <span className="text-secondary font-semibold text-sm">{totalPoints}</span>
               <span className="text-xs text-gray-500 hidden sm:inline">Points</span>
             </div>
             
