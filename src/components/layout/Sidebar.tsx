@@ -113,7 +113,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
     {
       href: '/user-profile-cm-',
       icon: Settings,
-      label: 'Settings'
+      label: 'Profile'
     }
   ]
   

@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { PlusCircle, Bell, User, Search, Flame, Award, Calendar, Menu } from 'lucide-react'
+import { PlusCircle, Bell, User, Search, Flame, Award, Calendar, Menu, Loader2 } from 'lucide-react'
 import { useModal } from '@/context/ModalContext'
 import { useNotification } from '@/context/NotificationContext'
+import { useGhl } from '@/context/GhlContext'
+import { getUserByGhlIds, UserProfile } from '@/lib/userUtils'
 import StreakPopover from '@/components/features/StreakPopover'
 import NotificationsPopover from '@/components/features/NotificationsPopover'
 
@@ -16,16 +18,46 @@ interface HeaderProps {
 export default function Header({ toggleSidebar, isMobile = false }: HeaderProps) {
   const { openRecordActivityModal } = useModal()
   const { notifications, unreadCount, markAllAsRead } = useNotification()
+  const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
   const [isStreakPopoverOpen, setIsStreakPopoverOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   
-  // Mock data for streak count
-  const currentStreak = 14
-  const personalBest = 27
+  // Fetch user profile data
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (!ghlUserId || !ghlLocationId) {
+        setIsLoading(false)
+        return
+      }
+      
+      try {
+        setIsLoading(true)
+        const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
+        
+        if (userData) {
+          setUserProfile(userData)
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    if (isGhlParamsLoaded) {
+      fetchUserProfile()
+    }
+  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Get streak values from user profile or use 0 as fallback
+  const currentStreak = userProfile?.current_day_streak || 0
+  const personalBest = userProfile?.longest_day_streak || 0
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-10 pl-0 lg:pl-[200px]">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-10 pl-0 lg:pl-[250px]">
         <div className="flex items-center justify-between h-full px-4 lg:px-6">
           <div className="flex items-center">
             {/* Mobile menu button */}
@@ -61,19 +93,26 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
               title="Your prospecting streak - days in a row you've completed prospecting activities"
               onClick={() => setIsStreakPopoverOpen(true)}
             >
-              <div className="flex items-center">
-                <Flame className="h-4 w-4 lg:h-5 lg:w-5 text-orange-500 mr-1 lg:mr-1.5" />
-                <div>
-                  <div className="flex items-center">
-                    <span className="text-sm lg:text-base font-bold text-primary">{currentStreak}</span>
-                    <span className="text-xs text-gray-500 ml-1 hidden md:inline">day streak</span>
-                  </div>
-                  <div className="hidden md:flex items-center text-xs text-gray-500">
-                    <Award className="h-3 w-3 mr-1 text-amber-500" />
-                    <span>Best: {personalBest}</span>
+              {isLoading ? (
+                <div className="flex items-center">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary mr-2" />
+                  <span className="text-xs text-gray-500">Loading...</span>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <Flame className="h-4 w-4 lg:h-5 lg:w-5 text-orange-500 mr-1 lg:mr-1.5" />
+                  <div>
+                    <div className="flex items-center">
+                      <span className="text-sm lg:text-base font-bold text-primary">{currentStreak}</span>
+                      <span className="text-xs text-gray-500 ml-1 hidden md:inline">day streak</span>
+                    </div>
+                    <div className="hidden md:flex items-center text-xs text-gray-500">
+                      <Award className="h-3 w-3 mr-1 text-amber-500" />
+                      <span>Best: {personalBest}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
             
             {/* Record Activity Button - condensed on mobile */}
@@ -88,7 +127,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             
             {/* Points - hide on smallest screens */}
             <div className="hidden xs:flex items-center space-x-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-secondary bg-opacity-20 rounded-lg h-[42px] lg:h-[46px]">
-              <span className="text-secondary font-semibold text-sm">20</span>
+              <span className="text-secondary font-semibold text-sm">{userProfile?.total_points || 0}</span>
               <span className="text-xs text-gray-500 hidden sm:inline">Points</span>
             </div>
             
@@ -109,7 +148,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
               
               {/* User Profile */}
               <Link href="/user-profile-cm-" className="flex items-center justify-center h-8 w-8 lg:h-9 lg:w-9 bg-primary text-white rounded-full font-medium">
-                CM
+                {userProfile ? `${userProfile.first_name.charAt(0)}${userProfile.last_name.charAt(0)}` : 'U'}
               </Link>
             </div>
           </div>
@@ -133,4 +172,4 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
       /> */}
     </>
   )
-} 
+}
