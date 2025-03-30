@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { Award, Gift, TrendingUp, Clock, ArrowRight, Calendar, Info, Loader2 } from 'lucide-react'
+import { Award, Gift, TrendingUp, Clock, ArrowRight, Calendar, Info, Loader2, X, Phone, Mail, MessageSquare, Users, UserCheck, FileText } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
 import { 
@@ -17,6 +17,64 @@ import {
 } from '@/lib/userUtils'
 import { format } from 'date-fns'
 
+// Define earning options with detailed information
+const EARNING_OPTIONS = [
+  {
+    id: 1,
+    type: 'call',
+    title: 'Make a client call',
+    points: 10,
+    description: 'Make a phone call to a client to discuss their needs, follow up on previous conversations, or provide updates.',
+    icon: Phone,
+    examples: ['Follow-up call with client', 'Initial consultation call', 'Status update call']
+  },
+  {
+    id: 2,
+    type: 'email',
+    title: 'Send an email',
+    points: 5,
+    description: 'Send an email to a client with information, updates, or responses to their inquiries.',
+    icon: Mail,
+    examples: ['Follow-up email after meeting', 'Information email with resources', 'Response to client inquiry']
+  },
+  {
+    id: 3,
+    type: 'message',
+    title: 'Send a message',
+    points: 5,
+    description: 'Send a direct message to a client through a messaging platform or SMS.',
+    icon: MessageSquare,
+    examples: ['Quick status update', 'Appointment reminder', 'Document request']
+  },
+  {
+    id: 4,
+    type: 'meeting',
+    title: 'Attend a meeting',
+    points: 15,
+    description: 'Participate in a meeting with a client, either in person or virtually.',
+    icon: Users,
+    examples: ['Initial consultation', 'Product demonstration', 'Contract review meeting']
+  },
+  {
+    id: 5,
+    type: 'visit',
+    title: 'Client visit',
+    points: 20,
+    description: 'Visit a client at their location to provide in-person service or consultation.',
+    icon: UserCheck,
+    examples: ['On-site assessment', 'In-person presentation', 'Property walkthrough']
+  },
+  {
+    id: 6,
+    type: 'proposal',
+    title: 'Submit a proposal',
+    points: 50,
+    description: 'Create and submit a formal proposal or quote to a client.',
+    icon: FileText,
+    examples: ['Service proposal', 'Product quote', 'Project scope document']
+  }
+]
+
 export default function PointsPage() {
   const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -25,6 +83,7 @@ export default function PointsPage() {
   const [isActivitiesLoading, setIsActivitiesLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStatusInfo, setShowStatusInfo] = useState(false)
+  const [showEarningOptionsModal, setShowEarningOptionsModal] = useState(false)
 
   // Fetch user profile data
   useEffect(() => {
@@ -295,7 +354,12 @@ export default function PointsPage() {
                   </ul>
                 </div>
                 
-                <button className="btn-primary w-full">View All Earning Options</button>
+                <button 
+                  className="btn-primary w-full"
+                  onClick={() => setShowEarningOptionsModal(true)}
+                >
+                  View All Earning Options
+                </button>
               </div>
             </div>
           </div>
@@ -397,6 +461,94 @@ export default function PointsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Earning Options Modal */}
+      {showEarningOptionsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                <Award className="h-5 w-5 text-primary mr-2" />
+                Ways to Earn Points
+              </h2>
+              <button 
+                onClick={() => setShowEarningOptionsModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1">
+              <p className="text-gray-600 mb-6">
+                Complete the following activities to earn points and increase your status level. 
+                Higher status levels unlock additional rewards and benefits.
+              </p>
+              
+              <div className="space-y-6">
+                {EARNING_OPTIONS.map(option => (
+                  <div key={option.id} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <div className="bg-primary bg-opacity-10 p-2 rounded-lg mr-4">
+                        <option.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="font-semibold text-lg">{option.title}</h3>
+                          <span className="bg-primary text-white text-sm font-bold px-3 py-1 rounded-full">
+                            +{option.points} pts
+                          </span>
+                        </div>
+                        <p className="text-gray-600 mb-3">{option.description}</p>
+                        
+                        <div>
+                          <h4 className="font-medium text-sm text-gray-700 mb-1">Examples:</h4>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            {option.examples.map((example, index) => (
+                              <li key={index}>{example}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 bg-gray-100 p-4 rounded-lg">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <Info className="h-4 w-4 text-primary mr-1" />
+                  How Points Work
+                </h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  Points are automatically awarded when you complete activities in the system. 
+                  Your points accumulate over time and determine your status level.
+                </p>
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Status Levels:</span>
+                  <ul className="mt-1 space-y-1">
+                    {STATUS_LEVELS.map((level, index) => (
+                      <li key={index} className="flex justify-between">
+                        <span>{level.name}</span>
+                        <span>{level.minPoints}+ points</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+              <button 
+                onClick={() => setShowEarningOptionsModal(false)}
+                className="btn-primary w-full"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   )
 }
