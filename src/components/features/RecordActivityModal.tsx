@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { 
   Calendar, 
   DollarSign, 
@@ -15,16 +15,24 @@ import {
   Building, 
   Briefcase, 
   X,
-  Save
+  Save,
+  CheckCircle,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react'
+import { createActivity } from '@/lib/activityUtils'
+import { useGhl } from '@/context/GhlContext'
 
 interface RecordActivityModalProps {
   isOpen: boolean
   onClose: () => void
+  userId?: string
 }
 
-export default function RecordActivityModal({ isOpen, onClose }: RecordActivityModalProps) {
+export default function RecordActivityModal({ isOpen, onClose, userId }: RecordActivityModalProps) {
   if (!isOpen) return null
+  
+  const { ghlUserId, ghlLocationId } = useGhl()
   
   const activityTypes = [
     { id: 'call', name: 'Phone Call', icon: Phone, color: 'bg-blue-500' },
@@ -40,15 +48,119 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
     { id: 'business', name: 'Business', icon: Building },
   ]
   
+  const statusOptions = [
+    { id: 'approved', name: 'Approved' },
+    { id: 'follow-up-required', name: 'Follow-up Required' },
+    { id: 'pending-response', name: 'Pending Response' },
+    { id: 'preparing-terms', name: 'Preparing Terms' },
+    { id: 'proposal-sent', name: 'Proposal Sent' },
+    { id: 'waiting-for-documents', name: 'Waiting for Documents' },
+  ]
+  
+  // Form state
   const [selectedActivityType, setSelectedActivityType] = useState('')
   const [selectedClientType, setSelectedClientType] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState('approved')
+  const [clientName, setClientName] = useState('')
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().substr(0, 10))
+  const [potentialValue, setPotentialValue] = useState('')
+  const [notes, setNotes] = useState('')
+  const [tags, setTags] = useState('')
   
-  const handleSubmit = (e: React.FormEvent) => {
+  // UI state
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Process form data here
     
-    // Close the modal
-    onClose()
+    if (!userId && (!ghlUserId || !ghlLocationId)) {
+      setSubmitError('User identification is missing. Please try again later.')
+      console.error('Missing user identification:', { userId, ghlUserId, ghlLocationId })
+      return
+    }
+    
+    setIsSubmitting(true)
+    setSubmitError('')
+    setSubmitSuccess(false)
+    
+    try {
+      // First, if we don't have a userId but have GHL params, try to get the user profile
+      let userProfileId = userId || '';
+      
+      if (!userProfileId && ghlUserId && ghlLocationId) {
+        try {
+          // Import getUserByGhlIds dynamically to avoid circular dependencies
+          const { getUserByGhlIds } = await import('@/lib/userUtils');
+          const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId);
+          
+          if (userProfile) {
+            userProfileId = userProfile.id;
+            console.log('Found user profile ID from GHL params:', userProfileId);
+          } else {
+            setSubmitError('Could not find your user profile. Please try again later.');
+            console.error('No user profile found for GHL params:', { ghlUserId, ghlLocationId });
+            setIsSubmitting(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+          setSubmitError('Error finding your user profile. Please try again later.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      
+      // Prepare activity data
+      const activityData = {
+        user_profile_id: userProfileId,
+        ghl_user_id: ghlUserId || '',
+        ghl_location_id: ghlLocationId || '',
+        activity_type: selectedActivityType,
+        client_name: clientName,
+        client_type: selectedClientType,
+        activity_date: new Date(activityDate).toISOString(), // Convert to ISO string for timestamp
+        potential_value: potentialValue ? parseFloat(potentialValue) : null,
+        notes: notes || null,
+        status: selectedStatus,
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : null
+      }
+      
+      console.log('Submitting activity data:', activityData)
+      
+      // Save activity to database
+      const result = await createActivity(activityData)
+      
+      if (result) {
+        console.log('Activity saved successfully:', result)
+        setSubmitSuccess(true)
+        
+        // Reset form after successful submission
+        setSelectedActivityType('')
+        setSelectedClientType('')
+        setSelectedStatus('approved')
+        setClientName('')
+        setActivityDate(new Date().toISOString().substr(0, 10))
+        setPotentialValue('')
+        setNotes('')
+        setTags('')
+        
+        // Close modal after a short delay
+        setTimeout(() => {
+          onClose()
+          setSubmitSuccess(false)
+        }, 1500)
+      } else {
+        console.error('Failed to save activity, no result returned')
+        setSubmitError('Failed to save activity. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error saving activity:', error)
+      setSubmitError(`An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   
   return (
@@ -59,6 +171,7 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 z-10"
           aria-label="Close"
+          disabled={isSubmitting}
         >
           <X className="h-5 w-5" />
         </button>
@@ -69,6 +182,28 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
         
         <form onSubmit={handleSubmit}>
           <div className="p-4 md:p-6 space-y-6">
+            {submitSuccess && (
+              <div className="bg-green-50 border border-green-100 rounded-lg p-4 flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-medium text-green-800">Activity Saved</h4>
+                  <p className="text-xs text-green-700 mt-1">
+                    Your activity has been successfully recorded.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {submitError && (
+              <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-start">
+                <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-medium text-red-800">Error</h4>
+                  <p className="text-xs text-red-700 mt-1">{submitError}</p>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-1">
               <h3 className="text-lg font-medium text-darkNavy">Activity Details</h3>
               <p className="text-sm text-gray-500">Record your prospecting activity to track client interactions</p>
@@ -84,6 +219,9 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                   placeholder="Enter client or prospect name" 
                   className="px-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
                   required
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
               
@@ -108,6 +246,7 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                         className="sr-only" 
                         onChange={() => setSelectedClientType(clientType.id)}
                         required
+                        disabled={isSubmitting}
                       />
                       <clientType.icon className="h-5 w-5 text-gray-500 mr-3" />
                       <span className="text-sm">{clientType.name}</span>
@@ -137,6 +276,7 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                         className="sr-only" 
                         onChange={() => setSelectedActivityType(activityType.id)}
                         required
+                        disabled={isSubmitting}
                       />
                       <div className={`h-10 w-10 rounded-full ${activityType.color} flex items-center justify-center text-white mb-2`}>
                         <activityType.icon className="h-5 w-5" />
@@ -157,8 +297,10 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                     <input 
                       type="date" 
                       className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
-                      defaultValue={new Date().toISOString().substr(0, 10)}
+                      value={activityDate}
+                      onChange={(e) => setActivityDate(e.target.value)}
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
@@ -173,6 +315,9 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                       type="text" 
                       placeholder="0.00" 
                       className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                      value={potentialValue}
+                      onChange={(e) => setPotentialValue(e.target.value)}
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
@@ -188,6 +333,9 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                     placeholder="Describe the interaction and any key takeaways or follow-up actions" 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary" 
                     required
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    disabled={isSubmitting}
                   ></textarea>
                 </div>
               </div>
@@ -202,9 +350,35 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
                     type="text" 
                     placeholder="Add tags separated by commas" 
                     className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Example: potential, follow-up, new-lead</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <div className="relative">
+                  <CheckCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <select 
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
+                    required
+                    disabled={isSubmitting}
+                  >
+                    {statusOptions.map(option => (
+                      <option key={option.id} value={option.id}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Current status of this activity</p>
               </div>
               
               {/* <div className="flex items-center space-x-2">
@@ -230,18 +404,28 @@ export default function RecordActivityModal({ isOpen, onClose }: RecordActivityM
               type="button"
               onClick={onClose}
               className="btn-secondary w-full sm:w-auto order-2 sm:order-1"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button 
               type="submit"
-              className="btn-primary w-full sm:w-auto order-1 sm:order-2"
+              className={`btn-primary w-full sm:w-auto order-1 sm:order-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+              disabled={isSubmitting}
             >
-              <Save className="h-4 w-4 mr-2" /> Save Activity
+              {isSubmitting ? (
+                <>
+                  <span className="animate-pulse">Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" /> Save Activity
+                </>
+              )}
             </button>
           </div>
         </form>
       </div>
     </div>
   )
-} 
+}

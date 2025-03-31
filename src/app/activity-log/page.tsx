@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X, Building } from 'lucide-react'
+import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X, Building, RefreshCw } from 'lucide-react'
 import { useGhl } from '@/context/GhlContext'
 import { getUserActivities, Activity as DbActivity, getUserByGhlIds } from '@/lib/userUtils'
 
@@ -88,6 +88,7 @@ export default function ActivityLogPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
   
@@ -257,42 +258,52 @@ export default function ActivityLogPage() {
     setFilteredActivities(filtered);
   };
   
+  // Extract the fetchActivities function so it can be reused
+  const fetchActivities = async () => {
+    if (!isGhlParamsLoaded) return;
+    
+    setError(null);
+    
+    try {
+      // First get the user profile to get the user ID
+      const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId);
+      
+      if (!userProfile) {
+        setError("User profile not found");
+        return;
+      }
+      
+      // Then get the activities using the user ID
+      const activitiesData = await getUserActivities(userProfile.id, ghlUserId, ghlLocationId, 50);
+      
+      // Map DB activities to UI activities
+      const mappedActivities = activitiesData.map(mapDbActivityToUiActivity);
+      
+      setActivities(mappedActivities);
+      setFilteredActivities(mappedActivities);
+      setTotalCount(mappedActivities.length);
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+      setError("Failed to load activities");
+    }
+  };
+  
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchActivities();
+    setIsRefreshing(false);
+  };
+  
   // Fetch activities when GHL params are loaded
   useEffect(() => {
-    const fetchActivities = async () => {
-      if (!isGhlParamsLoaded) return;
-      
+    const loadInitialData = async () => {
       setIsLoading(true);
-      setError(null);
-      
-      try {
-        // First get the user profile to get the user ID
-        const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId);
-        
-        if (!userProfile) {
-          setError("User profile not found");
-          setIsLoading(false);
-          return;
-        }
-        
-        // Then get the activities using the user ID
-        const activitiesData = await getUserActivities(userProfile.id, ghlUserId, ghlLocationId, 50);
-        
-        // Map DB activities to UI activities
-        const mappedActivities = activitiesData.map(mapDbActivityToUiActivity);
-        
-        setActivities(mappedActivities);
-        setFilteredActivities(mappedActivities);
-        setTotalCount(mappedActivities.length);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching activities:", error);
-        setError("Failed to load activities");
-        setIsLoading(false);
-      }
+      await fetchActivities();
+      setIsLoading(false);
     };
     
-    fetchActivities();
+    loadInitialData();
   }, [ghlUserId, ghlLocationId, isGhlParamsLoaded]);
   
   const statusColors: Record<ActivityStatus, string> = {
@@ -446,6 +457,14 @@ export default function ActivityLogPage() {
               </div>
               
               <div className="flex items-center gap-2">
+                <button 
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                  onClick={handleRefresh}
+                  disabled={isLoading || isRefreshing}
+                  title="Refresh activities"
+                >
+                  <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
+                </button>
                 {/* Other buttons */}
               </div>
             </div>
