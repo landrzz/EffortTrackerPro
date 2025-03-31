@@ -135,9 +135,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
               </button>
             )}
             
-            <Link href="/" className="text-xl font-bold text-white px-3 py-1.5 rounded-md bg-primary shadow-sm">
-              {isMobile ? 'Tracker' : 'Activity Dashboard'}
-            </Link>
+            {/* Removed the Activity Dashboard link as requested */}
             
             {/* <div className="relative ml-4 lg:ml-6 hidden md:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
