@@ -6,7 +6,7 @@ import FormLayout from '@/components/layout/FormLayout'
 import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Flame, Award, Trophy } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
-import { getUserByGhlIds, updateUserProfile, UserProfileUpdate } from '@/lib/userUtils'
+import { getUserByGhlIds, updateUserProfile, createUserProfile, UserProfileUpdate } from '@/lib/userUtils'
 import { UserProfile } from '@/lib/userUtils'
 
 export default function UserProfilePage() {
@@ -17,6 +17,7 @@ export default function UserProfilePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [isNewUser, setIsNewUser] = useState(false)
   
   // Refs for form inputs
   const firstNameRef = useRef<HTMLInputElement>(null)
@@ -51,13 +52,21 @@ export default function UserProfilePage() {
         const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
         
         if (!userData) {
-          setError('User profile not found. Please check your credentials.')
+          // User doesn't exist, create a new profile
+          const newUser = await createUserProfile(ghlUserId, ghlLocationId)
+          
+          if (newUser) {
+            setUserProfile(newUser)
+            setIsNewUser(true)
+          } else {
+            setError('Failed to create user profile. Please try again later.')
+          }
         } else {
           setUserProfile(userData)
         }
       } catch (err) {
-        console.error('Error fetching user profile:', err)
-        setError('Failed to load user profile. Please try again later.')
+        console.error('Error fetching/creating user profile:', err)
+        setError('Failed to load or create user profile. Please try again later.')
       } finally {
         setIsLoading(false)
       }
@@ -189,6 +198,54 @@ export default function UserProfilePage() {
         onSubmit={handleSaveChanges}
         isSubmitting={isSaving}
       >
+        {isNewUser && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <CheckCircle className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">Welcome to Effort Tracker Pro!</h3>
+                <div className="mt-1 text-sm text-blue-600">
+                  <p>Your profile has been automatically created. Please take a moment to fill in your personal details below and click "Save Changes".</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {saveSuccess && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">Success!</h3>
+                <div className="mt-1 text-sm text-green-600">
+                  <p>Your profile has been successfully updated.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {saveError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-1 text-sm text-red-600">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <form ref={formRef} onSubmit={handleSaveChanges} className="space-y-8">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
             <div className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -242,21 +299,6 @@ export default function UserProfilePage() {
               </button>
             </div>
           </div>
-          
-          {/* Save status messages */}
-          {saveSuccess && (
-            <div className="flex items-center p-4 bg-green-50 text-green-800 rounded-lg">
-              <CheckCircle className="h-5 w-5 mr-2" />
-              <span>Profile updated successfully!</span>
-            </div>
-          )}
-          
-          {saveError && (
-            <div className="flex items-center p-4 bg-red-50 text-red-800 rounded-lg">
-              <AlertCircle className="h-5 w-5 mr-2" />
-              <span>{saveError}</span>
-            </div>
-          )}
           
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

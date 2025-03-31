@@ -406,3 +406,60 @@ export async function getUserDailyGoal(
     return 5; // Default value
   }
 }
+
+/**
+ * Creates a new user profile in Supabase using GHL identifiers
+ * @param ghlUserId - Go High Level User ID
+ * @param ghlLocationId - Go High Level Location ID
+ * @param initialData - Optional initial user data
+ * @returns Newly created user profile or null if creation failed
+ */
+export async function createUserProfile(
+  ghlUserId: string,
+  ghlLocationId: string,
+  initialData: Partial<UserProfileUpdate> = {}
+): Promise<UserProfile | null> {
+  try {
+    const now = new Date().toISOString();
+    
+    // Set up default values for a new user
+    const userData = {
+      ghl_user_id: ghlUserId,
+      ghl_location_id: ghlLocationId,
+      first_name: initialData.first_name || '',
+      last_name: initialData.last_name || '',
+      email: initialData.email || '',
+      phone: initialData.phone || null,
+      status_level: 'Bronze',
+      profile_creation_date: now,
+      current_day_streak: 0,
+      longest_day_streak: 0,
+      streak_start_date: null,
+      last_activity_date: null,
+      weekly_activity_average: 0,
+      daily_goal: initialData.daily_goal || 5,
+      total_points: 0,
+      profile_image_url: null,
+      is_active: true,
+      last_login: now,
+      created_at: now,
+      updated_at: now
+    };
+    
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .insert(userData)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error creating user profile:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Exception creating user profile:', error);
+    return null;
+  }
+}
