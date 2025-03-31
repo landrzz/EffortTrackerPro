@@ -118,6 +118,7 @@ export interface UserProfileUpdate {
   phone?: string | null;
   total_points?: number;
   status_level?: string;
+  daily_goal?: number;
 }
 
 /**

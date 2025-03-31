@@ -23,6 +23,7 @@ export default function UserProfilePage() {
   const lastNameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const phoneRef = useRef<HTMLInputElement>(null)
+  const dailyGoalRef = useRef<HTMLInputElement>(null)
   
   // Form ref for submitting the form
   const formRef = useRef<HTMLFormElement>(null)
@@ -89,6 +90,18 @@ export default function UserProfilePage() {
       last_name: lastNameRef.current?.value || '',
       email: emailRef.current?.value || '',
       phone: phoneRef.current?.value || null
+    }
+    
+    // Add daily goal if it's been changed
+    const dailyGoalValue = dailyGoalRef.current?.value;
+    if (dailyGoalValue) {
+      const dailyGoal = parseInt(dailyGoalValue, 10);
+      if (!isNaN(dailyGoal) && dailyGoal > 0) {
+        updatedProfile.daily_goal = dailyGoal;
+      } else if (dailyGoalValue.trim() !== '') {
+        setSaveError('Daily goal must be a positive number');
+        return;
+      }
     }
     
     // Validate required fields
@@ -367,7 +380,7 @@ export default function UserProfilePage() {
             <div className="pt-6 border-t border-gray-200">
               <h3 className="text-lg font-medium mb-4">Activity Statistics</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                   <div className="flex items-center mb-1">
                     <Flame className="h-5 w-5 text-orange-500 mr-2" />
@@ -391,6 +404,26 @@ export default function UserProfilePage() {
                   </div>
                   <p className="text-2xl font-bold">{userProfile?.total_points || 0}</p>
                 </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center mb-3">
+                  <h4 className="font-medium">Daily Activity Goal</h4>
+                </div>
+                <div className="flex items-center">
+                  <div className="relative w-full max-w-xs">
+                    <input 
+                      type="number" 
+                      min="1"
+                      max="50"
+                      defaultValue={userProfile?.daily_goal || 10} 
+                      className="px-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
+                      ref={dailyGoalRef}
+                    />
+                  </div>
+                  <p className="ml-3 text-sm text-gray-600">activities per day</p>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">This is your target number of activities to complete each day. It will be used in the Daily Progress dashboard.</p>
               </div>
             </div>
           </div>
