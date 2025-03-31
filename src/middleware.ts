@@ -9,10 +9,10 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
+        get: (name: string) => {
           return request.cookies.get(name)?.value
         },
-        set(name: string, value: string, options: any) {
+        set: (name: string, value: string, options: any) => {
           // This is used by the server, so we need to set new headers
           request.cookies.set({
             name,
@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
           })
           return response
         },
-        remove(name: string, options: any) {
+        remove: (name: string, options: any) => {
           // This is used by the server, so we need to set new headers
           request.cookies.set({
             name,
