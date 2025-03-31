@@ -98,15 +98,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
         ></div>
       </div>
       
-      <main className={`${isMobile ? 'pt-16' : 'lg:pl-[200px] pt-16'} min-h-screen transition-all duration-300`}>
+      <main className={`${isMobile ? 'pt-16' : 'lg:pl-[250px] pt-16'} min-h-screen transition-all duration-300`}>
         <div className="max-w-[1200px] mx-auto p-4 lg:p-6">
           {children}
         </div>
       </main>
       
-      <footer className={`${isMobile ? '' : 'lg:pl-[200px]'} py-4 text-center text-gray-500 text-sm border-t border-gray-200 transition-all duration-300`}>
+      <footer className={`${isMobile ? '' : 'lg:pl-[250px]'} py-4 text-center text-gray-500 text-sm border-t border-gray-200 transition-all duration-300`}>
         <div className="max-w-[1200px] mx-auto px-4 lg:px-6">
-          <p>© 2025 PACE Activity Tracking Dashboard. All rights reserved.</p>
+          <p>&#169; 2025 PACE Activity Tracking Dashboard. All rights reserved.</p>
         </div>
       </footer>
     </div>

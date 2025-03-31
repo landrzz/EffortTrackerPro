@@ -118,12 +118,9 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   ]
   
   return (
-    <div className={`h-full ${isMobile ? 'px-4 py-6' : 'fixed w-[250px] bg-white border-r h-full py-6'}`}>
+    <div className={`h-full ${isMobile ? 'px-4 py-6' : 'fixed left-0 top-0 w-[250px] bg-white border-r border-gray-200 h-full py-6 z-10 overflow-hidden'}`}>
       <div className="flex items-center px-3 mb-8">
-        <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
-          <span className="text-white font-bold text-lg">M</span>
-        </div>
-        <span className="ml-2 font-semibold text-gray-900">MortgageTracker</span>
+        <span className="font-bold text-2xl tracking-wider bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">PACE</span>
       </div>
       
       <div className="space-y-0">

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import FormLayout from '@/components/layout/FormLayout'
-import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Flame, Award, Trophy } from 'lucide-react'
+import { User, Mail, Phone, Lock, Bell, CreditCard, Shield, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Flame, Award, Trophy, X } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
 import { getUserByGhlIds, updateUserProfile, createUserProfile, UserProfileUpdate } from '@/lib/userUtils'
@@ -18,6 +18,8 @@ export default function UserProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [isNewUser, setIsNewUser] = useState(false)
+  const [showProfileUrlModal, setShowProfileUrlModal] = useState(false)
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('')
   
   // Refs for form inputs
   const firstNameRef = useRef<HTMLInputElement>(null)
@@ -76,6 +78,55 @@ export default function UserProfilePage() {
       fetchUserProfile()
     }
   }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Effect to initialize profile image URL from user profile
+  useEffect(() => {
+    if (userProfile?.profile_image_url) {
+      setProfileImageUrl(userProfile.profile_image_url);
+    }
+  }, [userProfile]);
+
+  // Handle profile image URL update
+  const handleProfileImageUpdate = async () => {
+    if (!userProfile) return;
+    
+    // Reset status
+    setSaveSuccess(false);
+    setSaveError(null);
+    
+    try {
+      setIsSaving(true);
+      
+      const updatedProfile: UserProfileUpdate = {
+        profile_image_url: profileImageUrl
+      };
+      
+      const updatedUser = await updateUserProfile(
+        userProfile.id,
+        ghlUserId,
+        ghlLocationId,
+        updatedProfile
+      );
+      
+      if (updatedUser) {
+        setUserProfile(updatedUser);
+        setSaveSuccess(true);
+        setShowProfileUrlModal(false);
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSaveSuccess(false);
+        }, 3000);
+      } else {
+        setSaveError('Failed to update profile image. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error saving profile image:', err);
+      setSaveError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
   
   // Handle form submission
   const handleSaveChanges = async (e?: React.FormEvent) => {
@@ -248,14 +299,86 @@ export default function UserProfilePage() {
         
         <form ref={formRef} onSubmit={handleSaveChanges} className="space-y-8">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <div className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
-              <Image 
-                src={userProfile?.profile_image_url || "https://picsum.photos/id/237/200/200"} 
-                alt="Profile Picture"
-                fill
-                className="object-cover"
-              />
+            <div 
+              onClick={() => setShowProfileUrlModal(true)}
+              className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer group"
+              title="Click to update profile picture"
+            >
+              {userProfile?.profile_image_url ? (
+                <Image 
+                  src={userProfile.profile_image_url} 
+                  alt="Profile Picture"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <User className="h-12 w-12 text-gray-400" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-200">
+                <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100">
+                  Change
+                </span>
+              </div>
             </div>
+            
+            {/* Profile URL Modal */}
+            {showProfileUrlModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">Update Profile Picture</h3>
+                    <button 
+                      onClick={() => setShowProfileUrlModal(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label htmlFor="profileImageUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                      Image URL
+                    </label>
+                    <input 
+                      type="text" 
+                      id="profileImageUrl"
+                      value={profileImageUrl}
+                      onChange={(e) => setProfileImageUrl(e.target.value)}
+                      placeholder="https://example.com/image.jpg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Enter a valid image URL (JPG, PNG, or GIF)
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowProfileUrlModal(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleProfileImageUpdate}
+                      className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-dark disabled:opacity-70"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <div className="flex items-center">
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Saving...
+                        </div>
+                      ) : 'Update Picture'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="flex-1 text-center md:text-left">
               <h2 className="text-2xl font-bold">{userProfile?.first_name} {userProfile?.last_name}</h2>

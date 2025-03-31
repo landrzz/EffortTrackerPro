@@ -119,6 +119,7 @@ export interface UserProfileUpdate {
   total_points?: number;
   status_level?: string;
   daily_goal?: number;
+  profile_image_url?: string | null;
 }
 
 /**
