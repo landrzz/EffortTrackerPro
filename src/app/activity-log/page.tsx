@@ -141,8 +141,16 @@ export default function ActivityLogPage() {
       if (status !== "All Statuses") newFilters.push(status);
     });
     
-    if (minValue || maxValue) {
-      const valueRange = `$${minValue}${maxValue ? ' - $' + maxValue : '+'}`;
+    // Sanitize min and max values by removing commas and non-numeric characters
+    const sanitizedMinValue = minValue ? minValue.replace(/[^0-9.]/g, '') : '';
+    const sanitizedMaxValue = maxValue ? maxValue.replace(/[^0-9.]/g, '') : '';
+    
+    // Update the state with sanitized values
+    setMinValue(sanitizedMinValue);
+    setMaxValue(sanitizedMaxValue);
+    
+    if (sanitizedMinValue || sanitizedMaxValue) {
+      const valueRange = `$${sanitizedMinValue}${sanitizedMaxValue ? ' - $' + sanitizedMaxValue : '+'}`;
       newFilters.push(valueRange);
     }
     
@@ -243,7 +251,12 @@ export default function ActivityLogPage() {
         const maxVal = valueMatch[2] ? parseInt(valueMatch[2], 10) : null;
         
         filtered = filtered.filter(activity => {
-          const value = parseInt(activity.potentialValue.replace(/[^\d]/g, ''), 10);
+          // Skip activities with N/A potential value
+          if (activity.potentialValue === 'N/A') return false;
+          
+          // Extract numeric value from the formatted string (e.g., "$5,000" -> 5000)
+          const value = parseInt(activity.potentialValue.replace(/[$,]/g, ''), 10);
+          
           if (isNaN(value)) return false;
           
           if (maxVal) {

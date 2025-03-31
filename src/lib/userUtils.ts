@@ -309,3 +309,99 @@ export function calculateMonthlyPoints(activities: Activity[]): number {
     .filter(activity => new Date(activity.activity_date) >= startOfMonth)
     .reduce((total, activity) => total + activity.points, 0);
 }
+
+/**
+ * Counts the number of activities completed today
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns Number of activities completed today
+ */
+export async function getTodayActivitiesCount(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<number> {
+  try {
+    // Get today's date at midnight
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayISOString = today.toISOString();
+    
+    let query = supabase
+      .from('activities')
+      .select('id', { count: 'exact' })
+      .gte('activity_date', todayISOString);
+    
+    // If we have a user ID, use that for the query
+    if (userId) {
+      query = query.eq('user_profile_id', userId);
+    } 
+    // Otherwise use GHL parameters
+    else if (ghlUserId && ghlLocationId) {
+      query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
+    }
+    // If we don't have either, we can't query
+    else {
+      console.error('Error counting today\'s activities: No identifier provided');
+      return 0;
+    }
+    
+    const { count, error } = await query;
+    
+    if (error) {
+      console.error('Error counting today\'s activities:', error);
+      return 0;
+    }
+    
+    return count || 0;
+  } catch (error) {
+    console.error('Exception counting today\'s activities:', error);
+    return 0;
+  }
+}
+
+/**
+ * Gets the user's daily activity goal
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns User's daily goal or default value of 5 if not found
+ */
+export async function getUserDailyGoal(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<number> {
+  try {
+    let query = supabase
+      .from('user_profiles')
+      .select('daily_goal');
+    
+    // If we have a user ID, use that for the query
+    if (userId) {
+      query = query.eq('id', userId);
+    } 
+    // Otherwise use GHL parameters
+    else if (ghlUserId && ghlLocationId) {
+      query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
+    }
+    // If we don't have either, we can't query
+    else {
+      console.error('Error fetching user daily goal: No identifier provided');
+      return 5; // Default value
+    }
+    
+    const { data, error } = await query.single();
+    
+    if (error) {
+      console.error('Error fetching user daily goal:', error);
+      return 5; // Default value
+    }
+    
+    return data?.daily_goal || 5; // Default to 5 if not set
+  } catch (error) {
+    console.error('Exception fetching user daily goal:', error);
+    return 5; // Default value
+  }
+}
