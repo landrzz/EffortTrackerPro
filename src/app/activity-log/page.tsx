@@ -1,25 +1,77 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X } from 'lucide-react'
+import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X, Building } from 'lucide-react'
+import { useGhl } from '@/context/GhlContext'
+import { getUserActivities, Activity as DbActivity, getUserByGhlIds } from '@/lib/userUtils'
 
 // Define the status types to fix TypeScript errors
 type ActivityStatus = 'follow-up-required' | 'proposal-sent' | 'pending-response' | 'waiting-for-documents' | 'preparing-terms' | 'approved'
 
-interface Activity {
-  id: number
-  clientName: string
-  clientType: string
-  activityType: string
-  notes: string
-  date: string
-  potentialValue: string
-  tags: string[]
-  icon: any // Using any for Lucide icons, could be refined further
-  color: string
-  status: ActivityStatus
+// Extend the DbActivity type to include tags
+interface ExtendedDbActivity extends DbActivity {
+  tags?: string[];
 }
+
+interface Activity {
+  id: string;
+  clientName: string;
+  clientType: string;
+  activityType: string;
+  notes: string | null;
+  date: string;
+  potentialValue: string;
+  tags: string[];
+  icon: any; // Using any for Lucide icons, could be refined further
+  color: string;
+  status: ActivityStatus;
+}
+
+// Map activity types to icons and colors - matching RecordActivityModal
+const activityTypeConfig: Record<string, { icon: any; color: string; displayName: string }> = {
+  'call': { icon: Phone, color: 'bg-blue-500', displayName: 'Phone Call' },
+  'email': { icon: Mail, color: 'bg-purple-500', displayName: 'Email' },
+  'meeting': { icon: Users, color: 'bg-green-500', displayName: 'Meeting' },
+  'message': { icon: MessageSquare, color: 'bg-amber-500', displayName: 'Text/Message' },
+  'visit': { icon: Home, color: 'bg-red-500', displayName: 'Site Visit' },
+  'proposal': { icon: Briefcase, color: 'bg-indigo-500', displayName: 'Proposal' }
+};
+
+// Map client types to icons
+const clientTypeConfig: Record<string, any> = {
+  'Individual': Users,
+  'Business': Building
+};
+
+// Convert database activity to UI activity
+const mapDbActivityToUiActivity = (dbActivity: ExtendedDbActivity): Activity => {
+  const activityType = dbActivity.activity_type;
+  const config = activityTypeConfig[activityType] || { icon: Briefcase, color: 'bg-gray-500', displayName: activityType };
+  
+  // Format date
+  const date = new Date(dbActivity.activity_date);
+  const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  
+  // Format potential value
+  const potentialValue = dbActivity.potential_value 
+    ? `$${dbActivity.potential_value.toLocaleString()}` 
+    : 'N/A';
+  
+  return {
+    id: dbActivity.id,
+    clientName: dbActivity.client_name,
+    clientType: dbActivity.client_type,
+    activityType: config.displayName,
+    notes: dbActivity.notes,
+    date: formattedDate,
+    potentialValue: potentialValue,
+    tags: Array.isArray(dbActivity.tags) ? dbActivity.tags : [],
+    icon: config.icon,
+    color: config.color,
+    status: dbActivity.status as ActivityStatus
+  };
+};
 
 export default function ActivityLogPage() {
   // Add state for filters
@@ -30,7 +82,17 @@ export default function ActivityLogPage() {
   const [minValue, setMinValue] = useState<string>("");
   const [maxValue, setMaxValue] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [appliedFilters, setAppliedFilters] = useState<string[]>(["Last 30 days", "Phone Call", "Follow Up Required"]);
+  const [appliedFilters, setAppliedFilters] = useState<string[]>(["Last 30 days"]);
+  
+  // Add state for activities
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  
+  // Get GHL context
+  const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl();
 
   // Function to clear all filters
   const clearAllFilters = () => {
@@ -41,7 +103,10 @@ export default function ActivityLogPage() {
     setMinValue("");
     setMaxValue("");
     setSearchQuery("");
-    setAppliedFilters([]);
+    setAppliedFilters(["Last 30 days"]);
+    
+    // Reset filtered activities to all activities
+    setFilteredActivities(activities);
   };
 
   // Function to handle checkbox changes for filter groups
@@ -80,94 +145,155 @@ export default function ActivityLogPage() {
       newFilters.push(valueRange);
     }
     
-    setAppliedFilters(newFilters);
+    setAppliedFilters(newFilters.length > 0 ? newFilters : ["Last 30 days"]);
+    
+    // Apply filters to activities
+    filterActivities(activities, searchQuery, newFilters);
   };
 
   // Function to remove a specific filter
   const removeFilter = (filter: string) => {
-    setAppliedFilters(appliedFilters.filter(f => f !== filter));
+    const newFilters = appliedFilters.filter(f => f !== filter);
+    setAppliedFilters(newFilters.length > 0 ? newFilters : ["Last 30 days"]);
+    
+    // Re-apply remaining filters
+    filterActivities(activities, searchQuery, newFilters);
   };
-
-  const activities: Activity[] = [
-    {
-      id: 1,
-      clientName: "Michael Johnson",
-      clientType: "Individual",
-      activityType: "Phone Call",
-      notes: "Discussed refinancing options for his primary residence. He's interested in a 15-year fixed option.",
-      date: "Aug 15, 2023",
-      potentialValue: "$350,000",
-      tags: ["follow-up", "hot-lead", "refinance"],
-      icon: Phone,
-      color: 'bg-blue-500',
-      status: "follow-up-required"
-    },
-    {
-      id: 2,
-      clientName: "Westview Properties LLC",
-      clientType: "Business",
-      activityType: "Meeting",
-      notes: "Met with the CFO about commercial property refinancing for their 3 locations. Needs proposal by end of month.",
-      date: "Aug 12, 2023",
-      potentialValue: "$1,250,000",
-      tags: ["proposal", "commercial", "multi-property"],
-      icon: Users,
-      color: 'bg-green-500',
-      status: "proposal-sent"
-    },
-    {
-      id: 3,
-      clientName: "Sarah Williams",
-      clientType: "Individual",
-      activityType: "Email",
-      notes: "Sent pre-approval information and rates. She's looking to purchase in the next 3 months.",
-      date: "Aug 10, 2023",
-      potentialValue: "$425,000",
-      tags: ["pre-approval", "purchase", "first-time-buyer"],
-      icon: Mail,
-      color: 'bg-purple-500',
-      status: "pending-response"
-    },
-    {
-      id: 4,
-      clientName: "David Chen",
-      clientType: "Individual",
-      activityType: "Text/Message",
-      notes: "Quick follow-up on documentation needed. He'll send credit report and bank statements by Friday.",
-      date: "Aug 7, 2023",
-      potentialValue: "$280,000",
-      tags: ["documentation", "follow-up"],
-      icon: MessageSquare,
-      color: 'bg-amber-500',
-      status: "waiting-for-documents"
-    },
-    {
-      id: 5,
-      clientName: "Riverfront Development",
-      clientType: "Business",
-      activityType: "Site Visit",
-      notes: "Toured the property they're looking to finance. Modern 12-unit apartment building with excellent location.",
-      date: "Aug 3, 2023",
-      potentialValue: "$2,100,000",
-      tags: ["multi-family", "new-construction"],
-      icon: Home,
-      color: 'bg-red-500',
-      status: "preparing-terms"
-    },
-    {
-      id: 6,
-      clientName: "Jennifer Martinez",
-      clientType: "Individual",
-      activityType: "Proposal",
-      notes: "Sent formal refinancing proposal with 3 options based on her equity position and goals.",
-      date: "Aug 1, 2023",
-      potentialValue: "$320,000",
-      tags: ["refinance", "proposal-sent"],
-      icon: Briefcase,
-      color: 'bg-indigo-500',
-      status: "approved"
-    },
-  ]
+  
+  // Function to handle search input changes
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    // Apply search to activities
+    filterActivities(activities, query, appliedFilters);
+  };
+  
+  // Function to filter activities based on search query and filters
+  const filterActivities = (allActivities: Activity[], query: string, filters: string[]) => {
+    // First apply search query
+    let filtered = allActivities;
+    
+    if (query) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter(activity => 
+        activity.clientName.toLowerCase().includes(lowerQuery) ||
+        (activity.notes && activity.notes.toLowerCase().includes(lowerQuery)) ||
+        (activity.tags && activity.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) ||
+        activity.activityType.toLowerCase().includes(lowerQuery)
+      );
+    }
+    
+    // Then apply other filters if they're not default
+    if (!filters.includes("Last 30 days") && filters.some(f => f.includes("Last"))) {
+      const dateFilter = filters.find(f => f.includes("Last"));
+      if (dateFilter) {
+        const now = new Date();
+        let cutoffDate = new Date();
+        
+        if (dateFilter === "Last 3 months") {
+          cutoffDate.setMonth(now.getMonth() - 3);
+        } else if (dateFilter === "Last 6 months") {
+          cutoffDate.setMonth(now.getMonth() - 6);
+        } else if (dateFilter === "Last year") {
+          cutoffDate.setFullYear(now.getFullYear() - 1);
+        } else {
+          // Default to 30 days
+          cutoffDate.setDate(now.getDate() - 30);
+        }
+        
+        filtered = filtered.filter(activity => new Date(activity.date) >= cutoffDate);
+      }
+    }
+    
+    // Filter by activity type
+    const activityTypeFilters = filters.filter(f => 
+      ['Phone Call', 'Email', 'Meeting', 'Text/Message', 'Site Visit', 'Proposal'].includes(f)
+    );
+    
+    if (activityTypeFilters.length > 0) {
+      filtered = filtered.filter(activity => activityTypeFilters.includes(activity.activityType));
+    }
+    
+    // Filter by client type
+    const clientTypeFilters = filters.filter(f => ['Individual', 'Business'].includes(f));
+    if (clientTypeFilters.length > 0) {
+      filtered = filtered.filter(activity => clientTypeFilters.includes(activity.clientType));
+    }
+    
+    // Filter by status
+    const statusFilters = filters.filter(f => 
+      ['Follow Up Required', 'Pending Response', 'Proposal Sent', 'Waiting for Documents', 'Preparing Terms', 'Approved'].includes(f)
+    );
+    
+    if (statusFilters.length > 0) {
+      filtered = filtered.filter(activity => {
+        const activityStatusText = statusText[activity.status];
+        return statusFilters.includes(activityStatusText);
+      });
+    }
+    
+    // Filter by value range
+    const valueFilter = filters.find(f => f.startsWith('$'));
+    if (valueFilter) {
+      const valueMatch = valueFilter.match(/\$(\d+)(?:\s*-\s*\$(\d+))?/);
+      if (valueMatch) {
+        const minVal = parseInt(valueMatch[1], 10);
+        const maxVal = valueMatch[2] ? parseInt(valueMatch[2], 10) : null;
+        
+        filtered = filtered.filter(activity => {
+          const value = parseInt(activity.potentialValue.replace(/[^\d]/g, ''), 10);
+          if (isNaN(value)) return false;
+          
+          if (maxVal) {
+            return value >= minVal && value <= maxVal;
+          } else {
+            return value >= minVal;
+          }
+        });
+      }
+    }
+    
+    setFilteredActivities(filtered);
+  };
+  
+  // Fetch activities when GHL params are loaded
+  useEffect(() => {
+    const fetchActivities = async () => {
+      if (!isGhlParamsLoaded) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // First get the user profile to get the user ID
+        const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId);
+        
+        if (!userProfile) {
+          setError("User profile not found");
+          setIsLoading(false);
+          return;
+        }
+        
+        // Then get the activities using the user ID
+        const activitiesData = await getUserActivities(userProfile.id, ghlUserId, ghlLocationId, 50);
+        
+        // Map DB activities to UI activities
+        const mappedActivities = activitiesData.map(mapDbActivityToUiActivity);
+        
+        setActivities(mappedActivities);
+        setFilteredActivities(mappedActivities);
+        setTotalCount(mappedActivities.length);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching activities:", error);
+        setError("Failed to load activities");
+        setIsLoading(false);
+      }
+    };
+    
+    fetchActivities();
+  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded]);
   
   const statusColors: Record<ActivityStatus, string> = {
     "follow-up-required": "bg-amber-100 text-amber-800",
@@ -190,7 +316,7 @@ export default function ActivityLogPage() {
   return (
     <MainLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-darkNavy">Prospecting Activity Log</h1>
+        <h1 className="text-3xl font-bold text-darkNavy">Activity Log</h1>
         <p className="text-gray-600 mt-1">Track and manage your client interactions</p>
       </div>
       
@@ -285,14 +411,14 @@ export default function ActivityLogPage() {
                   <input 
                     type="text" 
                     placeholder="Min" 
-                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
                     value={minValue}
                     onChange={(e) => setMinValue(e.target.value)}
                   />
                   <input 
                     type="text" 
                     placeholder="Max" 
-                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
                     value={maxValue}
                     onChange={(e) => setMaxValue(e.target.value)}
                   />
@@ -315,7 +441,7 @@ export default function ActivityLogPage() {
                   placeholder="Search by client name, notes, or tags..." 
                   className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchChange}
                 />
               </div>
               
@@ -334,7 +460,7 @@ export default function ActivityLogPage() {
                   />
                 </div>
               ))}
-              {appliedFilters.length > 0 && (
+              {appliedFilters.length > 0 && appliedFilters[0] !== "Last 30 days" && (
                 <button 
                   className="text-primary text-xs"
                   onClick={clearAllFilters}
@@ -346,87 +472,104 @@ export default function ActivityLogPage() {
           </div>
           
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="space-y-4 divide-y divide-gray-100">
-              {activities.map(activity => (
-                <div key={activity.id} className="p-4 hover:bg-gray-50">
-                  <div className="flex items-start gap-4">
-                    <div className={`flex-shrink-0 h-10 w-10 rounded-full ${activity.color} flex items-center justify-center text-white`}>
-                      <activity.icon className="h-5 w-5" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                        <div>
-                          <h3 className="text-lg font-semibold">{activity.clientName}</h3>
-                          <div className="flex items-center text-sm text-gray-500">
-                            <span>{activity.activityType}</span>
-                            <span className="mx-2">•</span>
-                            <span>{activity.date}</span>
-                            
-                            <span className={`ml-3 px-2 py-0.5 rounded-full text-xs ${statusColors[activity.status]}`}>
-                              {statusText[activity.status]}
-                            </span>
+            {isLoading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading activities...</p>
+              </div>
+            ) : error ? (
+              <div className="p-8 text-center">
+                <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+                <p className="text-gray-600">{error}</p>
+                <p className="text-sm text-gray-500 mt-2">Please try refreshing the page</p>
+              </div>
+            ) : filteredActivities.length === 0 ? (
+              <div className="p-8 text-center">
+                <Tag className="h-8 w-8 text-gray-400 mx-auto mb-4" />
+                {activities.length === 0 ? (
+                  <>
+                    <p className="text-gray-600">No activities found</p>
+                    <p className="text-sm text-gray-500 mt-2">Start logging your client interactions</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-600">No matching activities</p>
+                    <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters</p>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4 divide-y divide-gray-100">
+                {filteredActivities.map(activity => (
+                  <div key={activity.id} className="p-4 hover:bg-gray-50">
+                    <div className="flex items-start gap-4">
+                      <div className={`flex-shrink-0 h-10 w-10 rounded-full ${activity.color} flex items-center justify-center text-white`}>
+                        <activity.icon className="h-5 w-5" />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                          <div>
+                            <h3 className="text-lg font-semibold">{activity.clientName}</h3>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <span>{activity.activityType}</span>
+                              <span className="mx-2">•</span>
+                              <span>{activity.date}</span>
+                              
+                              <span className={`ml-3 px-2 py-0.5 rounded-full text-xs ${statusColors[activity.status]}`}>
+                                {statusText[activity.status]}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            {/* Removed Follow Up button as requested */}
+                            <button className="p-1 rounded-full hover:bg-gray-100">
+                              <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                            </button>
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                          {/* Removed Follow Up button as requested */}
-                          <button className="p-1 rounded-full hover:bg-gray-100">
-                            <MoreHorizontal className="h-5 w-5 text-gray-500" />
-                          </button>
+                        <div className="text-sm my-2">
+                          {activity.notes || 'No notes available'}
                         </div>
-                      </div>
-                      
-                      <div className="text-sm my-2">
-                        {activity.notes}
-                      </div>
-                      
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {activity.tags.map((tag, index) => (
-                          <span 
-                            key={index} 
-                            className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
                         
-                        <div className="ml-auto text-sm text-primary font-medium">
-                          Potential: {activity.potentialValue}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {activity.tags && activity.tags.length > 0 ? (
+                            activity.tags.map((tag, index) => (
+                              <span 
+                                key={index} 
+                                className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
+                              >
+                                #{tag}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400">No tags</span>
+                          )}
+                          
+                          <div className="ml-auto text-sm text-primary font-medium">
+                            Potential: {activity.potentialValue}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-              <div className="text-sm text-gray-600">
-                Showing 6 of 24 activities
-              </div>
-              <div className="flex items-center space-x-1">
-                <button className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100">
-                  &lt;
-                </button>
-                {[1, 2, 3, 4].map(page => (
-                  <button 
-                    key={page} 
-                    className={`h-8 w-8 flex items-center justify-center rounded-lg ${
-                      page === 1 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {page}
-                  </button>
                 ))}
-                <button className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100">
-                  &gt;
-                </button>
               </div>
-            </div>
+            )}
+            
+            {!isLoading && !error && filteredActivities.length > 0 && (
+              <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                <div className="text-sm text-gray-600">
+                  Showing {filteredActivities.length} of {totalCount} activities
+                </div>
+                {/* Pagination would go here in a future enhancement */}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </MainLayout>
   )
-} 
+}

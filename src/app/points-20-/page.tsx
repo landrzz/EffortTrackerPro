@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { Award, Gift, TrendingUp, Clock, ArrowRight, Calendar, Info, Loader2, X, Phone, Mail, MessageSquare, Users, UserCheck, FileText } from 'lucide-react'
+import { Award, Gift, TrendingUp, Clock, ArrowRight, Calendar, Info, Loader2, X, Phone, Mail, MessageSquare, Users, UserCheck, FileText, Search } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
 import { 
@@ -84,6 +84,7 @@ export default function PointsPage() {
   const [error, setError] = useState<string | null>(null)
   const [showStatusInfo, setShowStatusInfo] = useState(false)
   const [showEarningOptionsModal, setShowEarningOptionsModal] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Fetch user profile data
   useEffect(() => {
@@ -181,6 +182,17 @@ export default function PointsPage() {
     const activityType = formatActivityType(activity.activity_type)
     return `${activityType} with ${activity.client_name}`
   }
+  
+  // Filter activities based on search query
+  const filteredActivities = activities.filter(activity => {
+    if (!searchQuery.trim()) return true
+    
+    const description = getActivityDescription(activity).toLowerCase()
+    const date = formatActivityDate(activity.activity_date).toLowerCase()
+    const query = searchQuery.toLowerCase()
+    
+    return description.includes(query) || date.includes(query)
+  })
   
   // Determine current status level and next status level
   const getCurrentAndNextStatus = (points: number): { currentStatus: StatusLevel, nextStatus: StatusLevel | null } => {
@@ -433,6 +445,18 @@ export default function PointsPage() {
                 <Calendar className="h-5 w-5 text-primary mr-2" />
                 Activity & Points History
               </h2>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search activities..."
+                  className="py-1.5 pl-9 pr-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
             
             {isActivitiesLoading ? (
@@ -440,14 +464,23 @@ export default function PointsPage() {
                 <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
                 <p className="text-gray-500">Loading activities...</p>
               </div>
-            ) : activities.length === 0 ? (
+            ) : filteredActivities.length === 0 ? (
               <div className="p-8 text-center">
-                <p className="text-gray-500">No activities found.</p>
-                <p className="text-sm text-gray-400 mt-1">Complete activities to earn points!</p>
+                {activities.length === 0 ? (
+                  <>
+                    <p className="text-gray-500">No activities found.</p>
+                    <p className="text-sm text-gray-400 mt-1">Complete activities to earn points!</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-500">No matching activities found.</p>
+                    <p className="text-sm text-gray-400 mt-1">Try a different search term.</p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {activities.map(activity => (
+                {filteredActivities.map(activity => (
                   <div key={activity.id} className="flex justify-between items-center p-4">
                     <div>
                       <p className="font-medium">{getActivityDescription(activity)}</p>
