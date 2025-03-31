@@ -556,9 +556,6 @@ export default function ActivityLogPage() {
                           
                           <div className="flex items-center gap-2">
                             {/* Removed Follow Up button as requested */}
-                            <button className="p-1 rounded-full hover:bg-gray-100">
-                              <MoreHorizontal className="h-5 w-5 text-gray-500" />
-                            </button>
                           </div>
                         </div>
                         

@@ -1,12 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, CheckCircle, Calendar } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useGhl } from '@/context/GhlContext'
+import { getUserByGhlIds, getUserActivities } from '@/lib/userUtils'
 
 export default function ActivityCalendar() {
   const router = useRouter()
+  const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [activities, setActivities] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -14,8 +21,47 @@ export default function ActivityCalendar() {
   
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   
-  // Data representing days with activities
-  const daysWithActivities = [3, 4, 5, 10, 11, 17, 18, 19, 20, 21, 25, 26]
+  // Fetch user profile and activities
+  useEffect(() => {
+    async function fetchUserData() {
+      if (!isGhlParamsLoaded || !ghlUserId || !ghlLocationId) {
+        setIsLoading(false)
+        return
+      }
+      
+      try {
+        setIsLoading(true)
+        // First get the user profile
+        const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
+        
+        if (!userData) {
+          setError('User profile not found')
+          setIsLoading(false)
+          return
+        }
+        
+        setUserProfile(userData)
+        
+        // Get all activities for the user - we'll filter by month in the UI
+        // Using a higher limit to ensure we get enough activities for the month
+        const activitiesData = await getUserActivities(
+          userData.id, 
+          ghlUserId, 
+          ghlLocationId, 
+          100 // Limit to 100 activities
+        )
+        
+        setActivities(activitiesData)
+      } catch (err) {
+        console.error('Error fetching user data:', err)
+        setError('Failed to load user data')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchUserData()
+  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
   
   const goToPreviousMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
@@ -33,10 +79,40 @@ export default function ActivityCalendar() {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
   
+  // Group activities by day
+  const getActivitiesByDay = () => {
+    const activityMap: Record<number, any[]> = {}
+    
+    activities.forEach(activity => {
+      const activityDate = new Date(activity.activity_date)
+      // Only include activities from the current month
+      if (activityDate.getMonth() === currentMonth.getMonth() && 
+          activityDate.getFullYear() === currentMonth.getFullYear()) {
+        const day = activityDate.getDate()
+        if (!activityMap[day]) {
+          activityMap[day] = []
+        }
+        activityMap[day].push(activity)
+      }
+    })
+    
+    // For debugging - log the days with activities
+    console.log('Days with activities:', Object.keys(activityMap))
+    
+    return activityMap
+  }
+  
+  // Check if a day met the daily goal
+  const isDailyGoalMet = (day: number, activitiesByDay: Record<number, any[]>) => {
+    const dailyGoal = userProfile?.daily_goal || 1
+    return activitiesByDay[day] && activitiesByDay[day].length >= dailyGoal
+  }
+  
   const renderCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentMonth)
     const firstDayOfMonth = getFirstDayOfMonth(currentMonth)
     const days = []
+    const activitiesByDay = getActivitiesByDay()
     
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -51,7 +127,8 @@ export default function ActivityCalendar() {
                       new Date().getMonth() === currentMonth.getMonth() &&
                       new Date().getFullYear() === currentMonth.getFullYear()
       
-      const hasActivity = daysWithActivities.includes(day)
+      const hasActivity = activitiesByDay[day] && activitiesByDay[day].length > 0
+      const goalMet = isDailyGoalMet(day, activitiesByDay)
       
       days.push(
         <div 
@@ -64,13 +141,53 @@ export default function ActivityCalendar() {
             {day}
           </span>
           {hasActivity && (
-            <div className="absolute bottom-1 w-1 h-1 bg-primary rounded-full"></div>
+            <div 
+              className={`absolute bottom-1 w-1 h-1 ${goalMet ? 'bg-purple-600' : 'bg-green-500'} rounded-full`}
+            ></div>
           )}
         </div>
       )
     }
     
     return days
+  }
+  
+  if (isLoading) {
+    return (
+      <div className="card">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-darkNavy">Activity Calendar</h3>
+          <div className="animate-pulse h-5 w-24 bg-gray-200 rounded"></div>
+        </div>
+        <div className="animate-pulse space-y-2">
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {daysOfWeek.map(day => (
+              <div key={day} className="h-6 flex items-center justify-center">
+                <span className="text-xs font-medium text-gray-500">{day}</span>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {Array(35).fill(0).map((_, i) => (
+              <div key={i} className="h-10 bg-gray-100 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  if (error) {
+    return (
+      <div className="card">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-darkNavy">Activity Calendar</h3>
+        </div>
+        <div className="text-center py-6">
+          <p className="text-sm text-gray-500">{error}</p>
+        </div>
+      </div>
+    )
   }
   
   return (
@@ -112,7 +229,7 @@ export default function ActivityCalendar() {
         <div className="flex items-center">
           <CheckCircle className="text-green-500 h-5 w-5 mr-2" />
           <span className="text-sm">
-            <span className="font-medium">5-day streak!</span> Keep it up.
+            <span className="font-medium">{userProfile?.current_day_streak || 0}-day streak!</span> Keep it up.
           </span>
         </div>
         <button 
@@ -125,4 +242,4 @@ export default function ActivityCalendar() {
       </div>
     </div>
   )
-} 
+}

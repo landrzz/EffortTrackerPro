@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { Activity, updateUserPoints } from './userUtils';
+import { updateStreakAfterActivity } from './streakUtils';
 
 /**
  * Interface for creating a new activity
@@ -106,8 +107,16 @@ export async function createActivity(activityData: Omit<NewActivity, 'points'> &
         } else {
           console.log('Successfully updated user points:', updatedUser.total_points);
         }
+        
+        // Calculate and update streak after recording activity
+        const streakResult = await updateStreakAfterActivity(activityData.user_profile_id);
+        if (streakResult.success) {
+          console.log('Successfully updated user streak:', streakResult.currentStreak);
+        } else {
+          console.error('Error updating user streak:', streakResult.error);
+        }
       } catch (e) {
-        console.error('Exception updating user points:', e);
+        console.error('Exception updating user points or streak:', e);
       }
     }
     
