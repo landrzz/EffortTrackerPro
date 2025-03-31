@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X, Building, RefreshCw } from 'lucide-react'
 import { useGhl } from '@/context/GhlContext'
@@ -338,267 +338,269 @@ export default function ActivityLogPage() {
   }
   
   return (
-    <MainLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-darkNavy">Activity Log</h1>
-        <p className="text-gray-600 mt-1">Track and manage your client interactions</p>
-      </div>
-      
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 md:col-span-3">
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="text-lg font-semibold mb-4">Filters</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">
-                  Date Range
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <select 
-                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={dateRange}
-                    onChange={(e) => setDateRange(e.target.value)}
-                  >
-                    <option>Last 30 days</option>
-                    <option>Last 3 months</option>
-                    <option>Last 6 months</option>
-                    <option>Last year</option>
-                    <option>Custom range</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">
-                  Activity Type
-                </label>
-                <div className="space-y-2">
-                  {['All Types', 'Phone Call', 'Email', 'Meeting', 'Text/Message', 'Site Visit', 'Proposal'].map(type => (
-                    <label key={type} className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        className="h-4 w-4 text-primary" 
-                        checked={activityTypes.includes(type)}
-                        onChange={() => handleCheckboxChange(type, activityTypes, setActivityTypes, 'All Types')}
-                      />
-                      <span className="text-sm">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">
-                  Client Type
-                </label>
-                <div className="space-y-2">
-                  {['All', 'Individual', 'Business'].map(type => (
-                    <label key={type} className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        className="h-4 w-4 text-primary" 
-                        checked={clientTypes.includes(type)}
-                        onChange={() => handleCheckboxChange(type, clientTypes, setClientTypes, 'All')}
-                      />
-                      <span className="text-sm">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">
-                  Status
-                </label>
-                <div className="space-y-2">
-                  {['All Statuses', 'Follow Up Required', 'Pending Response', 'Proposal Sent', 'Waiting for Documents', 'Preparing Terms', 'Approved'].map(status => (
-                    <label key={status} className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        className="h-4 w-4 text-primary" 
-                        checked={statusFilters.includes(status)}
-                        onChange={() => handleCheckboxChange(status, statusFilters, setStatusFilters, 'All Statuses')}
-                      />
-                      <span className="text-sm">{status}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">
-                  Potential Value
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Min" 
-                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={minValue}
-                    onChange={(e) => setMinValue(e.target.value)}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Max" 
-                    className="px-3 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={maxValue}
-                    onChange={(e) => setMaxValue(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <button className="btn-primary w-full" onClick={applyFilters}>Apply Filters</button>
-              <button className="text-primary text-sm font-medium w-full" onClick={clearAllFilters}>Reset All</button>
-            </div>
-          </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <MainLayout>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-darkNavy">Activity Log</h1>
+          <p className="text-gray-600 mt-1">Track and manage your client interactions</p>
         </div>
         
-        <div className="col-span-12 md:col-span-9">
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input 
-                  type="text" 
-                  placeholder="Search by client name, notes, or tags..." 
-                  className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-              </div>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 md:col-span-3">
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <h3 className="text-lg font-semibold mb-4">Filters</h3>
               
-              <div className="flex items-center gap-2">
-                <button 
-                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
-                  onClick={handleRefresh}
-                  disabled={isLoading || isRefreshing}
-                  title="Refresh activities"
-                >
-                  <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
-                </button>
-                {/* Other buttons */}
-              </div>
-            </div>
-            
-            <div className="mt-3 flex flex-wrap gap-2">
-              {appliedFilters.map((filter, index) => (
-                <div key={index} className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                  {filter}
-                  <X 
-                    className="h-3 w-3 ml-1 cursor-pointer" 
-                    onClick={() => removeFilter(filter)}
-                  />
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Date Range
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <select 
+                      className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                      value={dateRange}
+                      onChange={(e) => setDateRange(e.target.value)}
+                    >
+                      <option>Last 30 days</option>
+                      <option>Last 3 months</option>
+                      <option>Last 6 months</option>
+                      <option>Last year</option>
+                      <option>Custom range</option>
+                    </select>
+                  </div>
                 </div>
-              ))}
-              {appliedFilters.length > 0 && appliedFilters[0] !== "Last 30 days" && (
-                <button 
-                  className="text-primary text-xs"
-                  onClick={clearAllFilters}
-                >
-                  Clear All
-                </button>
-              )}
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Activity Type
+                  </label>
+                  <div className="space-y-2">
+                    {['All Types', 'Phone Call', 'Email', 'Meeting', 'Text/Message', 'Site Visit', 'Proposal'].map(type => (
+                      <label key={type} className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          className="h-4 w-4 text-primary" 
+                          checked={activityTypes.includes(type)}
+                          onChange={() => handleCheckboxChange(type, activityTypes, setActivityTypes, 'All Types')}
+                        />
+                        <span className="text-sm">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Client Type
+                  </label>
+                  <div className="space-y-2">
+                    {['All', 'Individual', 'Business'].map(type => (
+                      <label key={type} className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          className="h-4 w-4 text-primary" 
+                          checked={clientTypes.includes(type)}
+                          onChange={() => handleCheckboxChange(type, clientTypes, setClientTypes, 'All')}
+                        />
+                        <span className="text-sm">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Status
+                  </label>
+                  <div className="space-y-2">
+                    {['All Statuses', 'Follow Up Required', 'Pending Response', 'Proposal Sent', 'Waiting for Documents', 'Preparing Terms', 'Approved'].map(status => (
+                      <label key={status} className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          className="h-4 w-4 text-primary" 
+                          checked={statusFilters.includes(status)}
+                          onChange={() => handleCheckboxChange(status, statusFilters, setStatusFilters, 'All Statuses')}
+                        />
+                        <span className="text-sm">{status}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Potential Value
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Min" 
+                      className="px-3 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                      value={minValue}
+                      onChange={(e) => setMinValue(e.target.value)}
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Max" 
+                      className="px-3 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                      value={maxValue}
+                      onChange={(e) => setMaxValue(e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                <button className="btn-primary w-full" onClick={applyFilters}>Apply Filters</button>
+                <button className="text-primary text-sm font-medium w-full" onClick={clearAllFilters}>Reset All</button>
+              </div>
             </div>
           </div>
           
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {isLoading ? (
-              <div className="p-8 text-center">
-                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading activities...</p>
+          <div className="col-span-12 md:col-span-9">
+            <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input 
+                    type="text" 
+                    placeholder="Search by client name, notes, or tags..." 
+                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button 
+                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                    onClick={handleRefresh}
+                    disabled={isLoading || isRefreshing}
+                    title="Refresh activities"
+                  >
+                    <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
+                  </button>
+                  {/* Other buttons */}
+                </div>
               </div>
-            ) : error ? (
-              <div className="p-8 text-center">
-                <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
-                <p className="text-gray-600">{error}</p>
-                <p className="text-sm text-gray-500 mt-2">Please try refreshing the page</p>
-              </div>
-            ) : filteredActivities.length === 0 ? (
-              <div className="p-8 text-center">
-                <Tag className="h-8 w-8 text-gray-400 mx-auto mb-4" />
-                {activities.length === 0 ? (
-                  <>
-                    <p className="text-gray-600">No activities found</p>
-                    <p className="text-sm text-gray-500 mt-2">Start logging your client interactions</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-gray-600">No matching activities</p>
-                    <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters</p>
-                  </>
+              
+              <div className="mt-3 flex flex-wrap gap-2">
+                {appliedFilters.map((filter, index) => (
+                  <div key={index} className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                    {filter}
+                    <X 
+                      className="h-3 w-3 ml-1 cursor-pointer" 
+                      onClick={() => removeFilter(filter)}
+                    />
+                  </div>
+                ))}
+                {appliedFilters.length > 0 && appliedFilters[0] !== "Last 30 days" && (
+                  <button 
+                    className="text-primary text-xs"
+                    onClick={clearAllFilters}
+                  >
+                    Clear All
+                  </button>
                 )}
               </div>
-            ) : (
-              <div className="space-y-4 divide-y divide-gray-100">
-                {filteredActivities.map(activity => (
-                  <div key={activity.id} className="p-4 hover:bg-gray-50">
-                    <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 h-10 w-10 rounded-full ${activity.color} flex items-center justify-center text-white`}>
-                        <activity.icon className="h-5 w-5" />
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                          <div>
-                            <h3 className="text-lg font-semibold">{activity.clientName}</h3>
-                            <div className="flex items-center text-sm text-gray-500">
-                              <span>{activity.activityType}</span>
-                              <span className="mx-2">•</span>
-                              <span>{activity.date}</span>
-                              
-                              <span className={`ml-3 px-2 py-0.5 rounded-full text-xs ${statusColors[activity.status]}`}>
-                                {statusText[activity.status]}
-                              </span>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              {isLoading ? (
+                <div className="p-8 text-center">
+                  <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading activities...</p>
+                </div>
+              ) : error ? (
+                <div className="p-8 text-center">
+                  <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+                  <p className="text-gray-600">{error}</p>
+                  <p className="text-sm text-gray-500 mt-2">Please try refreshing the page</p>
+                </div>
+              ) : filteredActivities.length === 0 ? (
+                <div className="p-8 text-center">
+                  <Tag className="h-8 w-8 text-gray-400 mx-auto mb-4" />
+                  {activities.length === 0 ? (
+                    <>
+                      <p className="text-gray-600">No activities found</p>
+                      <p className="text-sm text-gray-500 mt-2">Start logging your client interactions</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-600">No matching activities</p>
+                      <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters</p>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4 divide-y divide-gray-100">
+                  {filteredActivities.map(activity => (
+                    <div key={activity.id} className="p-4 hover:bg-gray-50">
+                      <div className="flex items-start gap-4">
+                        <div className={`flex-shrink-0 h-10 w-10 rounded-full ${activity.color} flex items-center justify-center text-white`}>
+                          <activity.icon className="h-5 w-5" />
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                            <div>
+                              <h3 className="text-lg font-semibold">{activity.clientName}</h3>
+                              <div className="flex items-center text-sm text-gray-500">
+                                <span>{activity.activityType}</span>
+                                <span className="mx-2">•</span>
+                                <span>{activity.date}</span>
+                                
+                                <span className={`ml-3 px-2 py-0.5 rounded-full text-xs ${statusColors[activity.status]}`}>
+                                  {statusText[activity.status]}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              {/* Removed Follow Up button as requested */}
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2">
-                            {/* Removed Follow Up button as requested */}
+                          <div className="text-sm my-2">
+                            {activity.notes || 'No notes available'}
                           </div>
-                        </div>
-                        
-                        <div className="text-sm my-2">
-                          {activity.notes || 'No notes available'}
-                        </div>
-                        
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          {activity.tags && activity.tags.length > 0 ? (
-                            activity.tags.map((tag, index) => (
-                              <span 
-                                key={index} 
-                                className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
-                              >
-                                #{tag}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs text-gray-400">No tags</span>
-                          )}
                           
-                          <div className="ml-auto text-sm text-primary font-medium">
-                            Potential: {activity.potentialValue}
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            {activity.tags && activity.tags.length > 0 ? (
+                              activity.tags.map((tag, index) => (
+                                <span 
+                                  key={index} 
+                                  className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
+                                >
+                                  #{tag}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-gray-400">No tags</span>
+                            )}
+                            
+                            <div className="ml-auto text-sm text-primary font-medium">
+                              Potential: {activity.potentialValue}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {!isLoading && !error && filteredActivities.length > 0 && (
-              <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                <div className="text-sm text-gray-600">
-                  Showing {filteredActivities.length} of {totalCount} activities
+                  ))}
                 </div>
-                {/* Pagination would go here in a future enhancement */}
-              </div>
-            )}
+              )}
+              
+              {!isLoading && !error && filteredActivities.length > 0 && (
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    Showing {filteredActivities.length} of {totalCount} activities
+                  </div>
+                  {/* Pagination would go here in a future enhancement */}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </MainLayout>
+      </MainLayout>
+    </Suspense>
   )
 }
