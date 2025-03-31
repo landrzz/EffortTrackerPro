@@ -99,9 +99,10 @@ function UserProfileLoaderContent({ onUserLoaded, children }: UserProfileLoaderP
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-yellow-800">No User Found</h3>
+            <h3 className="text-sm font-medium text-yellow-800">User Not Found</h3>
             <div className="mt-2 text-sm text-yellow-700">
               <p>No user profile was found with the provided GHL parameters.</p>
+              <p className="mt-1">Please make sure you have the correct GHL parameters in the URL.</p>
             </div>
           </div>
         </div>
@@ -109,73 +110,45 @@ function UserProfileLoaderContent({ onUserLoaded, children }: UserProfileLoaderP
     )
   }
 
-  return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <div className="flex items-center mb-4">
-        {user.profile_image_url ? (
-          <img 
-            src={user.profile_image_url} 
-            alt={`${user.first_name} ${user.last_name}`} 
-            className="h-16 w-16 rounded-full mr-4 object-cover"
-          />
-        ) : (
-          <div className="h-16 w-16 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold mr-4">
-            {user.first_name.charAt(0)}{user.last_name.charAt(0)}
-          </div>
-        )}
-        
-        <div>
-          <h2 className="text-xl font-bold text-darkNavy">{user.first_name} {user.last_name}</h2>
-          <div className="text-gray-600">{user.email}</div>
-          {user.phone && <div className="text-gray-600">{user.phone}</div>}
-          <div className="mt-1">
-            <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-primary bg-opacity-10 text-primary">
-              {user.status_level}
-            </span>
-          </div>
-        </div>
+  // If we have a user, render the children or a default profile view
+  return children ? <>{children}</> : (
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+      <div className="flex flex-col space-y-1.5">
+        <h3 className="text-2xl font-semibold leading-none tracking-tight">User Profile</h3>
+        <p className="text-sm text-muted-foreground">User information from GHL integration</p>
       </div>
-      
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <div className="text-sm text-gray-500">Current Streak</div>
-          <div className="text-xl font-bold text-primary">{user.current_day_streak} days</div>
+      <div className="space-y-4 mt-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium leading-none">Name</label>
+            <p className="text-sm mt-1">{user.first_name} {user.last_name}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium leading-none">Email</label>
+            <p className="text-sm mt-1">{user.email || 'Not provided'}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium leading-none">Phone</label>
+            <p className="text-sm mt-1">{user.phone || 'Not provided'}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium leading-none">Status Level</label>
+            <p className="text-sm mt-1">{user.status_level || 'Standard'}</p>
+          </div>
         </div>
-        
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <div className="text-sm text-gray-500">Longest Streak</div>
-          <div className="text-xl font-bold text-amber-600">{user.longest_day_streak} days</div>
-        </div>
-        
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <div className="text-sm text-gray-500">Total Points</div>
-          <div className="text-xl font-bold text-secondary">{user.total_points}</div>
-        </div>
-        
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <div className="text-sm text-gray-500">Daily Goal</div>
-          <div className="text-xl font-bold text-green-600">{user.daily_goal} activities</div>
-        </div>
-      </div>
-      
-      <div className="mt-6 text-sm text-gray-500">
-        <div>Member since: {new Date(user.profile_creation_date).toLocaleDateString()}</div>
-        {user.last_activity_date && (
-          <div>Last activity: {new Date(user.last_activity_date).toLocaleDateString()}</div>
-        )}
       </div>
     </div>
   )
 }
 
 // Wrap the component with Suspense to fix the Next.js warning
-export default function UserProfileLoader(props: UserProfileLoaderProps) {
+export function UserProfileLoader(props: UserProfileLoaderProps) {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center p-8">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-gray-500">Loading user profile...</p>
         </div>
       </div>
     }>
