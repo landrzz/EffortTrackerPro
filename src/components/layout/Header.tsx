@@ -103,6 +103,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
   // Listen for custom event that can be triggered when points change
   useEffect(() => {
     const handleProfileUpdate = () => {
+      console.log('Header received profileDataUpdated event, refreshing profile data')
       fetchFreshProfileData()
     }
     
@@ -111,7 +112,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
     return () => {
       window.removeEventListener('profileDataUpdated', handleProfileUpdate)
     }
-  }, [])
+  }, [ghlUserId, ghlLocationId]) // Add dependencies here
   
   // Get streak values from user profile or use 0 as fallback
   const currentStreak = userProfile?.current_day_streak || 0
