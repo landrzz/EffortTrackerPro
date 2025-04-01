@@ -8,6 +8,9 @@ import { extractGhlParams } from '@/lib/userUtils'
 interface GhlContextType {
   ghlUserId: string
   ghlLocationId: string
+  ghlUserName: string
+  ghlUserEmail: string
+  ghlUserPhone: string
   isGhlParamsLoaded: boolean
   appendGhlParamsToUrl: (url: string) => string
 }
@@ -16,6 +19,9 @@ interface GhlContextType {
 const GhlContext = createContext<GhlContextType>({
   ghlUserId: '',
   ghlLocationId: '',
+  ghlUserName: '',
+  ghlUserEmail: '',
+  ghlUserPhone: '',
   isGhlParamsLoaded: false,
   appendGhlParamsToUrl: (url) => url
 })
@@ -30,6 +36,9 @@ function GhlContextContent({ setContextValue }: {
   setContextValue: (value: { 
     ghlUserId: string; 
     ghlLocationId: string; 
+    ghlUserName: string;
+    ghlUserEmail: string;
+    ghlUserPhone: string;
     isGhlParamsLoaded: boolean; 
     appendGhlParamsToUrl: (url: string) => string 
   }) => void 
@@ -40,6 +49,9 @@ function GhlContextContent({ setContextValue }: {
   
   const [ghlUserId, setGhlUserId] = useState<string>('')
   const [ghlLocationId, setGhlLocationId] = useState<string>('')
+  const [ghlUserName, setGhlUserName] = useState<string>('')
+  const [ghlUserEmail, setGhlUserEmail] = useState<string>('')
+  const [ghlUserPhone, setGhlUserPhone] = useState<string>('')
   const [isGhlParamsLoaded, setIsGhlParamsLoaded] = useState<boolean>(false)
   
   // Function to append GHL params to any URL
@@ -49,30 +61,55 @@ function GhlContextContent({ setContextValue }: {
     const hasQueryParams = url.includes('?')
     const separator = hasQueryParams ? '&' : '?'
     
-    return `${url}${separator}ghlUserId=${ghlUserId}&ghlLocationId=${ghlLocationId}`
+    let result = `${url}${separator}ghlUserId=${ghlUserId}&ghlLocationId=${ghlLocationId}`
+    
+    // Add other params if available
+    if (ghlUserName) result += `&ghlUserName=${encodeURIComponent(ghlUserName)}`
+    if (ghlUserEmail) result += `&ghlUserEmail=${encodeURIComponent(ghlUserEmail)}`
+    if (ghlUserPhone) result += `&ghlUserPhone=${encodeURIComponent(ghlUserPhone)}`
+    
+    return result
   }
   
   // Extract GHL params from URL on initial load
   useEffect(() => {
     if (searchParams) {
-      const { ghlUserId: userId, ghlLocationId: locationId } = extractGhlParams(searchParams as any)
+      const { 
+        ghlUserId: userId, 
+        ghlLocationId: locationId,
+        ghlUserName: userName,
+        ghlUserEmail: userEmail,
+        ghlUserPhone: userPhone
+      } = extractGhlParams(searchParams as any)
       
       if (userId && locationId) {
         setGhlUserId(userId)
         setGhlLocationId(locationId)
+        setGhlUserName(userName || '')
+        setGhlUserEmail(userEmail || '')
+        setGhlUserPhone(userPhone || '')
         setIsGhlParamsLoaded(true)
         
         // Store in sessionStorage for persistence
         sessionStorage.setItem('ghlUserId', userId)
         sessionStorage.setItem('ghlLocationId', locationId)
+        if (userName) sessionStorage.setItem('ghlUserName', userName)
+        if (userEmail) sessionStorage.setItem('ghlUserEmail', userEmail)
+        if (userPhone) sessionStorage.setItem('ghlUserPhone', userPhone)
       } else {
         // Try to get from sessionStorage if not in URL
         const storedUserId = sessionStorage.getItem('ghlUserId')
         const storedLocationId = sessionStorage.getItem('ghlLocationId')
+        const storedUserName = sessionStorage.getItem('ghlUserName')
+        const storedUserEmail = sessionStorage.getItem('ghlUserEmail')
+        const storedUserPhone = sessionStorage.getItem('ghlUserPhone')
         
         if (storedUserId && storedLocationId) {
           setGhlUserId(storedUserId)
           setGhlLocationId(storedLocationId)
+          if (storedUserName) setGhlUserName(storedUserName)
+          if (storedUserEmail) setGhlUserEmail(storedUserEmail)
+          if (storedUserPhone) setGhlUserPhone(storedUserPhone)
           setIsGhlParamsLoaded(true)
           
           // If we have stored params but they're not in the URL, add them
@@ -90,10 +127,13 @@ function GhlContextContent({ setContextValue }: {
     setContextValue({
       ghlUserId,
       ghlLocationId,
+      ghlUserName,
+      ghlUserEmail,
+      ghlUserPhone,
       isGhlParamsLoaded,
       appendGhlParamsToUrl
     })
-  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded, setContextValue])
+  }, [ghlUserId, ghlLocationId, ghlUserName, ghlUserEmail, ghlUserPhone, isGhlParamsLoaded, setContextValue])
   
   return null
 }
@@ -103,6 +143,9 @@ export function GhlProvider({ children }: GhlProviderProps) {
   const [contextValue, setContextValue] = useState<GhlContextType>({
     ghlUserId: '',
     ghlLocationId: '',
+    ghlUserName: '',
+    ghlUserEmail: '',
+    ghlUserPhone: '',
     isGhlParamsLoaded: false,
     appendGhlParamsToUrl: (url) => url
   })

@@ -72,13 +72,16 @@ export async function getUserByGhlIds(ghlUserId: string, ghlLocationId: string) 
 /**
  * Extracts GHL parameters from URL search params
  * @param searchParams - URL search parameters
- * @returns Object containing ghlUserId and ghlLocationId
+ * @returns Object containing GHL parameters
  */
 export function extractGhlParams(searchParams: URLSearchParams) {
   const ghlUserId = searchParams.get('ghlUserId') || '';
   const ghlLocationId = searchParams.get('ghlLocationId') || '';
+  const ghlUserName = searchParams.get('ghlUserName') || '';
+  const ghlUserEmail = searchParams.get('ghlUserEmail') || '';
+  const ghlUserPhone = searchParams.get('ghlUserPhone') || '';
   
-  return { ghlUserId, ghlLocationId };
+  return { ghlUserId, ghlLocationId, ghlUserName, ghlUserEmail, ghlUserPhone };
 }
 
 /**

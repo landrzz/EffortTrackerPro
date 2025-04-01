@@ -10,7 +10,7 @@ import { getUserByGhlIds, updateUserProfile, createUserProfile, UserProfileUpdat
 import { UserProfile } from '@/lib/userUtils'
 
 export default function UserProfilePage() {
-  const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
+  const { ghlUserId, ghlLocationId, ghlUserName, ghlUserEmail, ghlUserPhone, isGhlParamsLoaded } = useGhl()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -54,8 +54,30 @@ export default function UserProfilePage() {
         const userData = await getUserByGhlIds(ghlUserId, ghlLocationId)
         
         if (!userData) {
-          // User doesn't exist, create a new profile
-          const newUser = await createUserProfile(ghlUserId, ghlLocationId)
+          // User doesn't exist, create a new profile with data from URL parameters
+          let firstName = '';
+          let lastName = '';
+          
+          // Parse name if available (assuming format is "First Last")
+          if (ghlUserName) {
+            const nameParts = ghlUserName.split(' ');
+            if (nameParts.length >= 2) {
+              firstName = nameParts[0];
+              // Join the rest as last name in case there are multiple last names
+              lastName = nameParts.slice(1).join(' ');
+            } else {
+              firstName = ghlUserName;
+            }
+          }
+          
+          const initialData = {
+            first_name: firstName,
+            last_name: lastName,
+            email: ghlUserEmail || '',
+            phone: ghlUserPhone || ''
+          };
+          
+          const newUser = await createUserProfile(ghlUserId, ghlLocationId, initialData)
           
           if (newUser) {
             setUserProfile(newUser)
@@ -77,7 +99,7 @@ export default function UserProfilePage() {
     if (isGhlParamsLoaded) {
       fetchUserProfile()
     }
-  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  }, [ghlUserId, ghlLocationId, ghlUserName, ghlUserEmail, ghlUserPhone, isGhlParamsLoaded])
   
   // Effect to initialize profile image URL from user profile
   useEffect(() => {
