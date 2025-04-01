@@ -2,6 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { useGhl } from '@/context/GhlContext'
+import { 
+  getUserByGhlIds, 
+  getWeeklyActivitiesCount, 
+  getWeeklyPoints, 
+  getWeeklyGoalCompletion,
+  getUserDailyGoal
+} from '@/lib/userUtils'
 
 interface ProgressCircleProps {
   percentage: number
@@ -53,8 +61,16 @@ function ProgressCircle({ percentage, size, label, value }: ProgressCircleProps)
 }
 
 export default function WeeklyProgress() {
-  const [circleSize, setCircleSize] = useState(80);
-  const [currentDay, setCurrentDay] = useState(1);
+  const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
+  const [circleSize, setCircleSize] = useState(80)
+  const [currentDay, setCurrentDay] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
+  const [weeklyStats, setWeeklyStats] = useState([
+    { label: 'Activities', percentage: 0, value: '0' },
+    { label: 'Points', percentage: 0, value: '0' },
+    { label: 'Streak', percentage: 0, value: '0' },
+    { label: 'Goal', percentage: 0, value: '0%' }
+  ])
   
   // Handle window resize client-side only
   useEffect(() => {
@@ -96,12 +112,221 @@ export default function WeeklyProgress() {
     return () => clearInterval(timer);
   }, []);
   
-  const weeklyStats = [
-    { label: 'Activities', percentage: 65, value: '13' },
-    { label: 'Points', percentage: 75, value: '48' },
-    { label: 'Streak', percentage: 90, value: '5' },
-    { label: 'Goal', percentage: 40, value: '40%' }
-  ]
+  // Fetch weekly progress data
+  useEffect(() => {
+    async function fetchWeeklyData() {
+      if (!isGhlParamsLoaded || !ghlUserId || !ghlLocationId) {
+        console.log('GHL params not loaded or missing, skipping weekly data fetch')
+        return
+      }
+      
+      setIsLoading(true)
+      
+      try {
+        console.log('Fetching weekly progress data...')
+        
+        // Get user profile
+        const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId)
+        
+        if (!userProfile) {
+          console.error('No user profile found for GHL IDs:', { ghlUserId, ghlLocationId })
+          setIsLoading(false)
+          return
+        }
+        
+        // Get weekly activities count
+        const activitiesCount = await getWeeklyActivitiesCount(
+          userProfile.id,
+          ghlUserId,
+          ghlLocationId
+        )
+        
+        // Get weekly points
+        const weeklyPoints = await getWeeklyPoints(
+          userProfile.id,
+          ghlUserId,
+          ghlLocationId
+        )
+        
+        // Get weekly goal completion percentage
+        const goalCompletion = await getWeeklyGoalCompletion(
+          userProfile.id,
+          ghlUserId,
+          ghlLocationId
+        )
+        
+        // Get daily goal to calculate weekly goal
+        const dailyGoal = await getUserDailyGoal(
+          userProfile.id,
+          ghlUserId,
+          ghlLocationId
+        )
+        
+        // Calculate weekly goal
+        const weeklyGoal = dailyGoal * 7
+        
+        // Calculate streak percentage (current streak / longest streak) * 100
+        // If longest streak is 0, use 100% if current streak > 0, otherwise 0%
+        const streakPercentage = userProfile.longest_day_streak > 0 
+          ? (userProfile.current_day_streak / userProfile.longest_day_streak) * 100 
+          : userProfile.current_day_streak > 0 ? 100 : 0
+        
+        // Calculate activities percentage (activities / weekly goal) * 100, capped at 100%
+        const activitiesPercentage = Math.min((activitiesCount / weeklyGoal) * 100, 100)
+        
+        // Calculate points percentage based on weekly goal (assuming 10 points per activity as a rough estimate)
+        // This is a placeholder calculation - adjust based on your business logic
+        const pointsTarget = weeklyGoal * 10
+        const pointsPercentage = Math.min((weeklyPoints / pointsTarget) * 100, 100)
+        
+        // Update weekly stats
+        setWeeklyStats([
+          { 
+            label: 'Activities', 
+            percentage: activitiesPercentage, 
+            value: activitiesCount.toString() 
+          },
+          { 
+            label: 'Points', 
+            percentage: pointsPercentage, 
+            value: weeklyPoints.toString() 
+          },
+          { 
+            label: 'Streak', 
+            percentage: streakPercentage, 
+            value: userProfile.current_day_streak.toString() 
+          },
+          { 
+            label: 'Goal', 
+            percentage: goalCompletion, 
+            value: `${Math.round(goalCompletion)}%` 
+          }
+        ])
+        
+      } catch (error) {
+        console.error('Error fetching weekly progress data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchWeeklyData()
+    
+    // Set up refresh interval
+    const refreshInterval = setInterval(() => {
+      fetchWeeklyData()
+    }, 60000) // Refresh every minute
+    
+    return () => clearInterval(refreshInterval)
+  }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Listen for profile data updates
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log('profileDataUpdated event received, refreshing weekly progress data')
+      
+      async function refreshData() {
+        if (!ghlUserId || !ghlLocationId) {
+          return
+        }
+        
+        setIsLoading(true)
+        
+        try {
+          // Get user profile
+          const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId)
+          
+          if (!userProfile) {
+            console.error('No user profile found for GHL IDs:', { ghlUserId, ghlLocationId })
+            setIsLoading(false)
+            return
+          }
+          
+          // Get weekly activities count
+          const activitiesCount = await getWeeklyActivitiesCount(
+            userProfile.id,
+            ghlUserId,
+            ghlLocationId
+          )
+          
+          // Get weekly points
+          const weeklyPoints = await getWeeklyPoints(
+            userProfile.id,
+            ghlUserId,
+            ghlLocationId
+          )
+          
+          // Get weekly goal completion percentage
+          const goalCompletion = await getWeeklyGoalCompletion(
+            userProfile.id,
+            ghlUserId,
+            ghlLocationId
+          )
+          
+          // Get daily goal to calculate weekly goal
+          const dailyGoal = await getUserDailyGoal(
+            userProfile.id,
+            ghlUserId,
+            ghlLocationId
+          )
+          
+          // Calculate weekly goal
+          const weeklyGoal = dailyGoal * 7
+          
+          // Calculate streak percentage (current streak / longest streak) * 100
+          // If longest streak is 0, use 100% if current streak > 0, otherwise 0%
+          const streakPercentage = userProfile.longest_day_streak > 0 
+            ? (userProfile.current_day_streak / userProfile.longest_day_streak) * 100 
+            : userProfile.current_day_streak > 0 ? 100 : 0
+          
+          // Calculate activities percentage (activities / weekly goal) * 100, capped at 100%
+          const activitiesPercentage = Math.min((activitiesCount / weeklyGoal) * 100, 100)
+          
+          // Calculate points percentage based on weekly goal (assuming 10 points per activity as a rough estimate)
+          // This is a placeholder calculation - adjust based on your business logic
+          const pointsTarget = weeklyGoal * 10
+          const pointsPercentage = Math.min((weeklyPoints / pointsTarget) * 100, 100)
+          
+          // Update weekly stats
+          setWeeklyStats([
+            { 
+              label: 'Activities', 
+              percentage: activitiesPercentage, 
+              value: activitiesCount.toString() 
+            },
+            { 
+              label: 'Points', 
+              percentage: pointsPercentage, 
+              value: weeklyPoints.toString() 
+            },
+            { 
+              label: 'Streak', 
+              percentage: streakPercentage, 
+              value: userProfile.current_day_streak.toString() 
+            },
+            { 
+              label: 'Goal', 
+              percentage: goalCompletion, 
+              value: `${Math.round(goalCompletion)}%` 
+            }
+          ])
+          
+        } catch (error) {
+          console.error('Error refreshing weekly progress data:', error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      
+      refreshData()
+    }
+    
+    window.addEventListener('profileDataUpdated', handleProfileUpdate)
+    
+    return () => {
+      window.removeEventListener('profileDataUpdated', handleProfileUpdate)
+    }
+  }, [ghlUserId, ghlLocationId])
   
   return (
     <div className="card">
@@ -114,15 +339,30 @@ export default function WeeklyProgress() {
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-2">
-        {weeklyStats.map((stat, index) => (
-          <ProgressCircle
-            key={index}
-            percentage={stat.percentage}
-            size={circleSize}
-            label={stat.label}
-            value={stat.value}
-          />
-        ))}
+        {isLoading ? (
+          // Loading state
+          <>
+            {[1, 2, 3, 4].map((index) => (
+              <div key={index} className="flex flex-col items-center">
+                <div className="relative" style={{ width: circleSize, height: circleSize }}>
+                  <div className="animate-pulse bg-gray-200 rounded-full" style={{ width: circleSize, height: circleSize }}></div>
+                </div>
+                <div className="mt-2 h-4 w-16 animate-pulse bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </>
+        ) : (
+          // Actual data
+          weeklyStats.map((stat, index) => (
+            <ProgressCircle
+              key={index}
+              percentage={stat.percentage}
+              size={circleSize}
+              label={stat.label}
+              value={stat.value}
+            />
+          ))
+        )}
       </div>
       
       <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100">

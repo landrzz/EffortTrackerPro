@@ -510,3 +510,145 @@ export async function createUserProfile(
     return null;
   }
 }
+
+/**
+ * Gets the user's weekly activities count
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns Number of activities completed this week
+ */
+export async function getWeeklyActivitiesCount(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<number> {
+  try {
+    // Get the start of the current week (Monday)
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    const startOfWeek = new Date(now.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    let query = supabase
+      .from('activities')
+      .select('id', { count: 'exact' })
+      .gte('activity_date', startOfWeek.toISOString());
+    
+    // If we have a user ID, use that for the query
+    if (userId) {
+      query = query.eq('user_profile_id', userId);
+    } 
+    // Otherwise use GHL parameters
+    else if (ghlUserId && ghlLocationId) {
+      query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
+    }
+    // If we don't have either, we can't query
+    else {
+      console.error('Error counting weekly activities: No identifier provided');
+      return 0;
+    }
+    
+    const { count, error } = await query;
+    
+    if (error) {
+      console.error('Error counting weekly activities:', error);
+      return 0;
+    }
+    
+    return count || 0;
+  } catch (error) {
+    console.error('Exception counting weekly activities:', error);
+    return 0;
+  }
+}
+
+/**
+ * Gets the user's weekly points
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns Total points earned this week
+ */
+export async function getWeeklyPoints(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<number> {
+  try {
+    // Get the start of the current week (Monday)
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    const startOfWeek = new Date(now.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    let query = supabase
+      .from('activities')
+      .select('points');
+      
+    // Add date filter
+    query = query.gte('activity_date', startOfWeek.toISOString());
+    
+    // If we have a user ID, use that for the query
+    if (userId) {
+      query = query.eq('user_profile_id', userId);
+    } 
+    // Otherwise use GHL parameters
+    else if (ghlUserId && ghlLocationId) {
+      query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
+    }
+    // If we don't have either, we can't query
+    else {
+      console.error('Error calculating weekly points: No identifier provided');
+      return 0;
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error calculating weekly points:', error);
+      return 0;
+    }
+    
+    // Sum up all the points
+    return data.reduce((total, activity) => total + (activity.points || 0), 0);
+  } catch (error) {
+    console.error('Exception calculating weekly points:', error);
+    return 0;
+  }
+}
+
+/**
+ * Gets the user's weekly goal completion percentage
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns Percentage of weekly goal completed (0-100)
+ */
+export async function getWeeklyGoalCompletion(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<number> {
+  try {
+    // Get daily goal first
+    const dailyGoal = await getUserDailyGoal(userId, ghlUserId, ghlLocationId);
+    
+    // Weekly goal is daily goal * 7
+    const weeklyGoal = dailyGoal * 7;
+    
+    // Get weekly activities count
+    const weeklyActivities = await getWeeklyActivitiesCount(userId, ghlUserId, ghlLocationId);
+    
+    // Calculate percentage
+    const percentage = (weeklyActivities / weeklyGoal) * 100;
+    
+    // Return percentage, capped at 100%
+    return Math.min(percentage, 100);
+  } catch (error) {
+    console.error('Exception calculating weekly goal completion:', error);
+    return 0;
+  }
+}
