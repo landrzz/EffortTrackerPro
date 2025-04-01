@@ -146,6 +146,11 @@ export default function RecordActivityModal({ isOpen, onClose, userId }: RecordA
         setNotes('')
         setTags('')
         
+        // Dispatch event to notify other components that profile data needs to be refreshed
+        console.log('Dispatching profileDataUpdated event after saving activity');
+        const updateEvent = new Event('profileDataUpdated');
+        window.dispatchEvent(updateEvent);
+        
         // Close modal after a short delay
         setTimeout(() => {
           onClose()

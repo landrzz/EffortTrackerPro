@@ -5,6 +5,10 @@ import { ModalProvider } from '@/context/ModalContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import { AuthProvider } from '@/context/auth/AuthContext'
 import { GhlProvider } from '@/context/GhlContext'
+import dynamic from 'next/dynamic'
+
+// Import DebugPanel with dynamic import to avoid SSR issues
+const DebugPanel = dynamic(() => import('@/components/debug/DebugPanel'), { ssr: false })
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -29,6 +33,7 @@ export default function RootLayout({
             <NotificationProvider>
               <AuthProvider>
                 {children}
+                <DebugPanel />
               </AuthProvider>
             </NotificationProvider>
           </ModalProvider>

@@ -15,36 +15,76 @@ export default function DailyProgress() {
     longestStreak: 0
   })
   
+  // Add debugging state to track component lifecycle
+  const [debugInfo, setDebugInfo] = useState({
+    lastRefresh: '',
+    userProfileId: '',
+    refreshCount: 0
+  })
+  
   useEffect(() => {
+    console.log('DailyProgress component mounted with GHL params:', {
+      ghlUserId,
+      ghlLocationId,
+      isGhlParamsLoaded
+    })
+    
     async function fetchData() {
-      if (!isGhlParamsLoaded || !ghlUserId || !ghlLocationId) return
+      if (!isGhlParamsLoaded || !ghlUserId || !ghlLocationId) {
+        console.log('GHL params not loaded or missing, skipping data fetch')
+        return
+      }
       
       setIsLoading(true)
+      setDebugInfo(prev => ({
+        ...prev,
+        lastRefresh: new Date().toISOString(),
+        refreshCount: prev.refreshCount + 1
+      }))
+      
+      console.log('Fetching daily progress data...')
+      
       try {
         // Get user profile to get streak data
+        console.log('Fetching user profile for GHL IDs:', { ghlUserId, ghlLocationId })
         const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId)
+        console.log('User profile fetched:', userProfile)
         
         if (userProfile) {
-          // Get today's activities count
+          setDebugInfo(prev => ({
+            ...prev,
+            userProfileId: userProfile.id
+          }))
+          
+          // Get today's activities count - force a refresh by adding a timestamp
+          console.log('Fetching today\'s activities count for user:', userProfile.id)
           const todayActivities = await getTodayActivitiesCount(
             userProfile.id, 
             ghlUserId, 
             ghlLocationId
           )
+          console.log('Today\'s activities count result:', todayActivities)
           
           // Get user's daily goal
+          console.log('Fetching user\'s daily goal')
           const dailyGoal = await getUserDailyGoal(
             userProfile.id,
             ghlUserId,
             ghlLocationId
           )
+          console.log('User\'s daily goal:', dailyGoal)
           
-          setProgress({
+          const newProgress = {
             completedActivities: todayActivities,
             totalActivities: dailyGoal,
             streak: userProfile.current_day_streak || 0,
             longestStreak: userProfile.longest_day_streak || 0
-          })
+          }
+          
+          console.log('Setting progress with data:', newProgress)
+          setProgress(newProgress)
+        } else {
+          console.error('No user profile found for GHL IDs:', { ghlUserId, ghlLocationId })
         }
       } catch (error) {
         console.error('Error fetching daily progress data:', error)
@@ -54,7 +94,86 @@ export default function DailyProgress() {
     }
     
     fetchData()
+    
+    // Force a refresh every 30 seconds to ensure data is current
+    const refreshInterval = setInterval(() => {
+      console.log('Refreshing daily progress data from interval');
+      fetchData();
+    }, 30000);
+    
+    return () => clearInterval(refreshInterval);
   }, [ghlUserId, ghlLocationId, isGhlParamsLoaded])
+  
+  // Listen for custom event that can be triggered when activities are added
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log('profileDataUpdated event received, refreshing daily progress data');
+      setIsLoading(true);
+      // Refetch data when profile is updated (e.g., when an activity is saved)
+      async function refreshData() {
+        if (!ghlUserId || !ghlLocationId) {
+          setIsLoading(false);
+          return;
+        }
+
+        try {
+          // Get user profile to get streak data
+          console.log('Fetching user profile for GHL IDs:', { ghlUserId, ghlLocationId })
+          const userProfile = await getUserByGhlIds(ghlUserId, ghlLocationId)
+          console.log('User profile fetched:', userProfile)
+          
+          if (userProfile) {
+            setDebugInfo(prev => ({
+              ...prev,
+              userProfileId: userProfile.id
+            }))
+            
+            // Get today's activities count
+            console.log('Fetching today\'s activities count for user:', userProfile.id)
+            const todayActivities = await getTodayActivitiesCount(
+              userProfile.id, 
+              ghlUserId, 
+              ghlLocationId
+            )
+            console.log('Today\'s activities count result:', todayActivities)
+            
+            // Get user's daily goal
+            console.log('Fetching user\'s daily goal')
+            const dailyGoal = await getUserDailyGoal(
+              userProfile.id,
+              ghlUserId,
+              ghlLocationId
+            )
+            console.log('User\'s daily goal:', dailyGoal)
+            
+            const newProgress = {
+              completedActivities: todayActivities,
+              totalActivities: dailyGoal,
+              streak: userProfile.current_day_streak || 0,
+              longestStreak: userProfile.longest_day_streak || 0
+            }
+            
+            console.log('Setting progress with data:', newProgress)
+            setProgress(newProgress)
+          } else {
+            console.error('No user profile found for GHL IDs:', { ghlUserId, ghlLocationId })
+          }
+        } catch (error) {
+          console.error('Error refreshing daily progress data:', error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      
+      refreshData();
+    };
+    
+    window.addEventListener('profileDataUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileDataUpdated', handleProfileUpdate);
+    };
+  }, [ghlUserId, ghlLocationId]);
   
   const progressPercentage = (progress.completedActivities / progress.totalActivities) * 100
   

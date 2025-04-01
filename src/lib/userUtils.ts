@@ -328,22 +328,51 @@ export async function getTodayActivitiesCount(
   ghlLocationId: string | null
 ): Promise<number> {
   try {
-    // Get today's date at midnight
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayISOString = today.toISOString();
+    // Log the input parameters
+    console.log('getTodayActivitiesCount called with:', { userId, ghlUserId, ghlLocationId });
+    
+    // Get today's date in local timezone
+    const now = new Date();
+    
+    // Create a date string in YYYY-MM-DD format for the current day
+    const todayDateString = now.toISOString().split('T')[0]; // Gets YYYY-MM-DD
+    
+    console.log('Querying activities for date:', todayDateString);
+    
+    // Log the exact query we're about to run
+    const queryParams = {
+      date: todayDateString,
+      userId: userId || 'null',
+      ghlUserId: ghlUserId || 'null',
+      ghlLocationId: ghlLocationId || 'null'
+    };
+    console.log('Query parameters:', queryParams);
+    
+    // Use a different approach - query with date range instead of LIKE
+    // Start of day in UTC
+    const startOfDay = new Date(todayDateString + 'T00:00:00.000Z');
+    // End of day in UTC
+    const endOfDay = new Date(todayDateString + 'T23:59:59.999Z');
+    
+    console.log('Date range query:', {
+      startOfDay: startOfDay.toISOString(),
+      endOfDay: endOfDay.toISOString()
+    });
     
     let query = supabase
       .from('activities')
-      .select('id', { count: 'exact' })
-      .gte('activity_date', todayISOString);
+      .select('id, activity_date, activity_type, user_profile_id, ghl_user_id, ghl_location_id', { count: 'exact' })
+      .gte('activity_date', startOfDay.toISOString())
+      .lte('activity_date', endOfDay.toISOString());
     
     // If we have a user ID, use that for the query
     if (userId) {
+      console.log(`Filtering by user_profile_id: ${userId}`);
       query = query.eq('user_profile_id', userId);
     } 
     // Otherwise use GHL parameters
     else if (ghlUserId && ghlLocationId) {
+      console.log(`Filtering by ghl_user_id: ${ghlUserId} and ghl_location_id: ${ghlLocationId}`);
       query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
     }
     // If we don't have either, we can't query
@@ -352,14 +381,28 @@ export async function getTodayActivitiesCount(
       return 0;
     }
     
-    const { count, error } = await query;
+    // Execute the query and log the raw response
+    console.log('Executing Supabase query...');
+    const response = await query;
+    console.log('Raw Supabase response:', response);
+    
+    const { count, error, data } = response;
     
     if (error) {
       console.error('Error counting today\'s activities:', error);
       return 0;
     }
     
-    return count || 0;
+    // Log the actual data for debugging
+    console.log('Today\'s activities data:', data);
+    console.log('Today\'s activities count:', count);
+    
+    // Double-check the count by counting the array length
+    const manualCount = data ? data.length : 0;
+    console.log('Manual count from data array:', manualCount);
+    
+    // Return the count from the query, or fall back to manual count if needed
+    return count !== null ? count : manualCount;
   } catch (error) {
     console.error('Exception counting today\'s activities:', error);
     return 0;
