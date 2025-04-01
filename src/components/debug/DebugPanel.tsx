@@ -63,6 +63,41 @@ export default function DebugPanel() {
   const [isVisible, setIsVisible] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [filter, setFilter] = useState('');
+  const [showDebugButton, setShowDebugButton] = useState(false);
+  
+  // Check URL parameter on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const debugParam = params.get('debug');
+      setShowDebugButton(debugParam === 'true');
+      
+      // Listen for URL changes (for SPA navigation)
+      const handleRouteChange = () => {
+        const newParams = new URLSearchParams(window.location.search);
+        const newDebugParam = newParams.get('debug');
+        setShowDebugButton(newDebugParam === 'true');
+      };
+      
+      // Add event listener for popstate (browser back/forward)
+      window.addEventListener('popstate', handleRouteChange);
+      
+      // For Next.js client-side navigation
+      const originalPushState = window.history.pushState;
+      window.history.pushState = function(...args) {
+        // Call the original function first
+        originalPushState.apply(this, args);
+        // Then call our handler
+        handleRouteChange();
+      };
+      
+      return () => {
+        window.removeEventListener('popstate', handleRouteChange);
+        // Restore original function
+        window.history.pushState = originalPushState;
+      };
+    }
+  }, []);
   
   // Update logs from global array
   useEffect(() => {
@@ -86,13 +121,18 @@ export default function DebugPanel() {
     log.toLowerCase().includes(filter.toLowerCase())
   );
   
+  // Don't render anything if debug mode is not enabled
+  if (!showDebugButton) {
+    return null;
+  }
+  
   if (!isVisible) {
     return (
       <button 
         onClick={() => setIsVisible(true)}
         className="fixed bottom-4 right-4 bg-blue-600 text-white px-3 py-2 rounded-md shadow-lg z-50"
       >
-        Show Debug Logs
+        Debug Logs
       </button>
     );
   }
