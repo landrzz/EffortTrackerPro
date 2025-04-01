@@ -49,9 +49,15 @@ const mapDbActivityToUiActivity = (dbActivity: ExtendedDbActivity): Activity => 
   const activityType = dbActivity.activity_type;
   const config = activityTypeConfig[activityType] || { icon: Briefcase, color: 'bg-gray-500', displayName: activityType };
   
-  // Format date
-  const date = new Date(dbActivity.activity_date);
-  const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  // Format date - Fix timezone issue by using the date directly
+  const dateObj = new Date(dbActivity.activity_date);
+  // Adjust for timezone to ensure correct display
+  const formattedDate = dateObj.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric',
+    timeZone: 'UTC'  // Use UTC to prevent timezone shift
+  });
   
   // Format potential value
   const potentialValue = dbActivity.potential_value 
