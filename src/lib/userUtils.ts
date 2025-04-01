@@ -652,3 +652,218 @@ export async function getWeeklyGoalCompletion(
     return 0;
   }
 }
+
+/**
+ * Gets the user's daily activity counts for the past 7 days
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns Array of daily activity counts for the past 7 days
+ */
+export async function getWeeklyActivityData(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<{ day: string; value: number; date: string }[]> {
+  try {
+    // Get the date 7 days ago
+    const now = new Date();
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 6); // Get 7 days including today
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    
+    let query = supabase
+      .from('activities')
+      .select('activity_date')
+      .gte('activity_date', sevenDaysAgo.toISOString());
+    
+    // If we have a user ID, use that for the query
+    if (userId) {
+      query = query.eq('user_profile_id', userId);
+    } 
+    // Otherwise use GHL parameters
+    else if (ghlUserId && ghlLocationId) {
+      query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
+    }
+    // If we don't have either, we can't query
+    else {
+      console.error('Error fetching weekly activity data: No identifier provided');
+      return generateEmptyWeekData();
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching weekly activity data:', error);
+      return generateEmptyWeekData();
+    }
+    
+    // Process the data to get counts per day
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const result = [];
+    
+    // Create array for the past 7 days
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - 6 + i);
+      
+      const dayName = dayNames[date.getDay()];
+      const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      // Count activities for this day
+      const dayActivities = data?.filter(activity => {
+        const activityDate = new Date(activity.activity_date);
+        return activityDate.toISOString().split('T')[0] === dateString;
+      }) || [];
+      
+      result.push({
+        day: dayName,
+        value: dayActivities.length,
+        date: dateString
+      });
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Exception fetching weekly activity data:', error);
+    return generateEmptyWeekData();
+  }
+}
+
+/**
+ * Gets the user's weekly activity counts for the past 4 weeks
+ * @param userId - User ID (if available)
+ * @param ghlUserId - Go High Level User ID (required if userId not provided)
+ * @param ghlLocationId - Go High Level Location ID (required if userId not provided)
+ * @returns Array of weekly activity counts for the past 4 weeks
+ */
+export async function getMonthlyActivityData(
+  userId: string | null,
+  ghlUserId: string | null,
+  ghlLocationId: string | null
+): Promise<{ week: string; value: number }[]> {
+  try {
+    // Get the date 4 weeks ago
+    const now = new Date();
+    const fourWeeksAgo = new Date(now);
+    fourWeeksAgo.setDate(now.getDate() - 28); // 4 weeks
+    fourWeeksAgo.setHours(0, 0, 0, 0);
+    
+    let query = supabase
+      .from('activities')
+      .select('activity_date')
+      .gte('activity_date', fourWeeksAgo.toISOString());
+    
+    // If we have a user ID, use that for the query
+    if (userId) {
+      query = query.eq('user_profile_id', userId);
+    } 
+    // Otherwise use GHL parameters
+    else if (ghlUserId && ghlLocationId) {
+      query = query.eq('ghl_user_id', ghlUserId).eq('ghl_location_id', ghlLocationId);
+    }
+    // If we don't have either, we can't query
+    else {
+      console.error('Error fetching monthly activity data: No identifier provided');
+      return generateEmptyMonthData();
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching monthly activity data:', error);
+      return generateEmptyMonthData();
+    }
+    
+    const result = [];
+    
+    // Create array for the past 4 weeks
+    for (let i = 0; i < 4; i++) {
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() - (i * 7));
+      
+      const weekStart = new Date(weekEnd);
+      weekStart.setDate(weekEnd.getDate() - 6);
+      
+      // Format dates as MM/DD
+      const formatDate = (date: Date) => {
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `${month}/${day}`;
+      };
+      
+      const weekRange = `${formatDate(weekStart)}-${formatDate(weekEnd)}`;
+      
+      // Count activities for this week
+      const weekActivities = data?.filter(activity => {
+        const activityDate = new Date(activity.activity_date);
+        return activityDate >= weekStart && activityDate <= weekEnd;
+      }) || [];
+      
+      result.push({
+        week: weekRange,
+        value: weekActivities.length
+      });
+    }
+    
+    // Reverse the array so it's in chronological order
+    return result.reverse();
+  } catch (error) {
+    console.error('Exception fetching monthly activity data:', error);
+    return generateEmptyMonthData();
+  }
+}
+
+// Helper function to generate empty week data
+function generateEmptyWeekData(): { day: string; value: number; date: string }[] {
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const now = new Date();
+  const result = [];
+  
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - 6 + i);
+    
+    const dayName = dayNames[date.getDay()];
+    const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    result.push({
+      day: dayName,
+      value: 0,
+      date: dateString
+    });
+  }
+  
+  return result;
+}
+
+// Helper function to generate empty month data
+function generateEmptyMonthData(): { week: string; value: number }[] {
+  const now = new Date();
+  const result = [];
+  
+  for (let i = 0; i < 4; i++) {
+    const weekEnd = new Date(now);
+    weekEnd.setDate(now.getDate() - (i * 7));
+    
+    const weekStart = new Date(weekEnd);
+    weekStart.setDate(weekEnd.getDate() - 6);
+    
+    // Format dates as MM/DD
+    const formatDate = (date: Date) => {
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${month}/${day}`;
+    };
+    
+    const weekRange = `${formatDate(weekStart)}-${formatDate(weekEnd)}`;
+    
+    result.push({
+      week: weekRange,
+      value: 0
+    });
+  }
+  
+  // Reverse the array so it's in chronological order
+  return result.reverse();
+}
