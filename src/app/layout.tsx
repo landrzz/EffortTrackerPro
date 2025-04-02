@@ -5,6 +5,7 @@ import { ModalProvider } from '@/context/ModalContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import { AuthProvider } from '@/context/auth/AuthContext'
 import { GhlProvider } from '@/context/GhlContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 import dynamic from 'next/dynamic'
 
 // Import DebugPanel with dynamic import to avoid SSR issues
@@ -27,18 +28,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans bg-bgGray min-h-screen`}>
-        <GhlProvider>
-          <ModalProvider>
-            <NotificationProvider>
-              <AuthProvider>
-                {children}
-                <DebugPanel />
-              </AuthProvider>
-            </NotificationProvider>
-          </ModalProvider>
-        </GhlProvider>
+      <body className={`${inter.variable} font-sans bg-bgGray dark:bg-darkNavy dark:text-white min-h-screen`}>
+        <ThemeProvider>
+          <GhlProvider>
+            <ModalProvider>
+              <NotificationProvider>
+                <AuthProvider>
+                  {children}
+                  <DebugPanel />
+                </AuthProvider>
+              </NotificationProvider>
+            </ModalProvider>
+          </GhlProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
-} 
+}

@@ -180,50 +180,50 @@ export default function DailyProgress() {
   return (
     <div className="card h-full flex flex-col">
       <div className="flex justify-between items-start mb-4 md:mb-5">
-        <h3 className="text-base md:text-lg font-semibold text-darkNavy">Daily Progress</h3>
-        <span className="text-xs text-gray-500">Today</span>
+        <h3 className="text-title text-base md:text-lg">Daily Progress</h3>
+        <span className="text-subtitle text-xs">Today</span>
       </div>
       
       <div className="space-y-4 md:space-y-5 flex-grow">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary dark:border-dark-accent-purple"></div>
           </div>
         ) : (
           <>
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs md:text-sm text-gray-600">Activities Completed</span>
-                <span className="text-xs md:text-sm font-medium">{progress.completedActivities}/{progress.totalActivities}</span>
+                <span className="text-body text-xs md:text-sm">Activities Completed</span>
+                <span className="text-xs md:text-sm font-medium dark:text-dark-text-primary">{progress.completedActivities}/{progress.totalActivities}</span>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="progress-bar">
                 <div 
-                  className="h-full bg-primary rounded-full"
+                  className="progress-bar-fill"
                   style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                 ></div>
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-3 mt-4 md:mt-5">
-              <div className="flex flex-col md:flex-row md:items-center p-3 md:p-4 bg-gray-50 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mb-1 md:mb-0 md:mr-3" />
+              <div className="stats-card">
+                <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-dark-accent-green mb-1 md:mb-0 md:mr-3" />
                 <div>
-                  <p className="text-xs text-gray-500">Current Streak</p>
-                  <p className="text-base md:text-lg font-semibold">{progress.streak} days</p>
+                  <p className="text-subtitle text-xs">Current Streak</p>
+                  <p className="text-title text-base md:text-lg">{progress.streak} days</p>
                 </div>
               </div>
               
-              <div className="flex flex-col md:flex-row md:items-center p-3 md:p-4 bg-gray-50 rounded-lg">
-                <Trophy className="h-5 w-5 text-yellow-500 mb-1 md:mb-0 md:mr-3" />
+              <div className="stats-card">
+                <Trophy className="h-5 w-5 text-yellow-500 dark:text-amber-400 mb-1 md:mb-0 md:mr-3" />
                 <div>
-                  <p className="text-xs text-gray-500">Best Streak</p>
-                  <p className="text-base md:text-lg font-semibold">{progress.longestStreak} days</p>
+                  <p className="text-subtitle text-xs">Best Streak</p>
+                  <p className="text-title text-base md:text-lg">{progress.longestStreak} days</p>
                 </div>
               </div>
             </div>
             
             {progress.completedActivities >= progress.totalActivities && (
-              <div className="mt-4 md:mt-6 pt-2 md:pt-3 flex items-center text-xs md:text-sm text-green-600">
+              <div className="mt-4 md:mt-6 pt-2 md:pt-3 flex items-center text-xs md:text-sm text-green-600 dark:text-dark-accent-green">
                 <TrendingUp className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                 <span>Daily goal achieved! Great job!</span>
               </div>

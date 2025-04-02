@@ -61,7 +61,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-bgGray">
+    <div className="min-h-screen bg-bgGray dark:bg-dark-bg transition-colors duration-200">
       <Header 
         toggleSidebar={toggleSidebar} 
         isMobile={isMobile} 
@@ -80,10 +80,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="relative h-full w-[240px] bg-white shadow-lg">
+        <div className="relative h-full w-[240px] bg-white dark:bg-dark-card shadow-lg dark:shadow-none dark:border-r dark:border-dark-border">
           <button 
             onClick={toggleSidebar}
-            className="absolute top-4 right-4 p-1 rounded-full bg-gray-100 text-gray-600"
+            className="absolute top-4 right-4 p-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
           >
             <X className="h-5 w-5" />
           </button>
@@ -93,7 +93,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
         {/* Overlay for closing the sidebar */}
         <div 
-          className="absolute inset-0 bg-black bg-opacity-50 z-[-1]"
+          className="absolute inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 z-[-1]"
           onClick={toggleSidebar}
         ></div>
       </div>
@@ -104,11 +104,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </main>
       
-      <footer className={`${isMobile ? '' : 'lg:pl-[250px]'} py-4 text-center text-gray-500 text-sm border-t border-gray-200 transition-all duration-300`}>
+      <footer className={`${isMobile ? '' : 'lg:pl-[250px]'} py-4 text-center text-gray-500 dark:text-gray-400 text-sm border-t border-gray-200 dark:border-dark-border transition-all duration-300`}>
         <div className="max-w-[1200px] mx-auto px-4 lg:px-6">
           <p>&#169; 2025 PACE Activity Tracking Dashboard. All rights reserved.</p>
         </div>
       </footer>
     </div>
   )
-} 
+}

@@ -27,17 +27,17 @@ function SidebarLink({ href, icon: Icon, label, isActive, disabled = false }: Si
       <div 
         className={`
           flex flex-col px-4 py-3 rounded-lg text-sm font-medium
-          text-gray-400 cursor-not-allowed
+          text-gray-400 dark:text-gray-500 cursor-not-allowed
           transition-all duration-150 ease-in-out
           h-[72px] mb-1
         `}
       >
         <div className="flex items-center">
-          <Icon className="h-6 w-6 mr-3 text-gray-400" />
+          <Icon className="h-6 w-6 mr-3 text-gray-400 dark:text-gray-500" />
           <span className="text-base">{label}</span>
         </div>
         <div className="ml-9 mt-1">
-          <span className="px-2 py-0.5 bg-gray-200 text-gray-600 text-xs rounded inline-block">
+          <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded inline-block">
             Coming Soon
           </span>
         </div>
@@ -51,14 +51,14 @@ function SidebarLink({ href, icon: Icon, label, isActive, disabled = false }: Si
       className={`
         flex items-center px-4 py-3 rounded-lg text-base font-medium
         ${isActive 
-          ? 'bg-primary/10 text-primary' 
-          : 'text-gray-600 hover:bg-gray-100'
+          ? 'bg-primary/10 dark:bg-primary/20 text-primary' 
+          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
         }
         transition-all duration-150 ease-in-out
         h-[72px] mb-1
       `}
     >
-      <Icon className={`h-6 w-6 mr-3 ${isActive ? 'text-primary' : 'text-gray-500'}`} />
+      <Icon className={`h-6 w-6 mr-3 ${isActive ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
       {label}
     </GhlLink>
   )
@@ -118,7 +118,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   ]
   
   return (
-    <div className={`h-full ${isMobile ? 'px-4 py-6' : 'fixed left-0 top-0 w-[250px] bg-white border-r border-gray-200 h-full py-6 z-10 overflow-hidden'}`}>
+    <div className={`h-full ${isMobile ? 'px-4 py-6' : 'fixed left-0 top-0 w-[250px] bg-white dark:bg-darkNavy border-r border-gray-200 dark:border-gray-700 h-full py-6 z-10 overflow-hidden'}`}>
       <div className="flex items-center px-3 mb-8">
         <span className="font-bold text-2xl tracking-wider bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">PACE</span>
       </div>
@@ -136,8 +136,8 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
         ))}
       </div>
       
-      <div className="mt-8 pt-8 border-t">
-        <p className="px-3 mb-2 text-xs font-medium text-gray-400 uppercase">Account</p>
+      <div className="mt-8 pt-8 border-t dark:border-gray-700">
+        <p className="px-3 mb-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Account</p>
         <div className="space-y-0">
           {secondaryLinks.map((link) => (
             <SidebarLink
@@ -152,4 +152,4 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       </div>
     </div>
   )
-} 
+}

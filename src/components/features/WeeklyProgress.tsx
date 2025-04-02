@@ -29,7 +29,7 @@ function ProgressCircle({ percentage, size, label, value }: ProgressCircleProps)
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size}>
           <circle
-            className="text-gray-200"
+            className="text-gray-200 dark:text-gray-700"
             strokeWidth={strokeWidth}
             stroke="currentColor"
             fill="transparent"
@@ -38,7 +38,7 @@ function ProgressCircle({ percentage, size, label, value }: ProgressCircleProps)
             cy={size / 2}
           />
           <circle
-            className="text-primary"
+            className="text-primary dark:text-dark-accent-purple"
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
@@ -52,10 +52,10 @@ function ProgressCircle({ percentage, size, label, value }: ProgressCircleProps)
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-base sm:text-lg md:text-xl font-bold">{value}</span>
+          <span className="text-base sm:text-lg md:text-xl font-bold dark:text-dark-text-primary">{value}</span>
         </div>
       </div>
-      <span className="mt-2 text-xs md:text-sm text-gray-600">{label}</span>
+      <span className="mt-2 text-xs md:text-sm text-body">{label}</span>
     </div>
   )
 }
@@ -331,7 +331,7 @@ export default function WeeklyProgress() {
   return (
     <div className="card">
       <div className="flex justify-between items-center mb-4 md:mb-6">
-        <h3 className="text-base md:text-lg font-semibold text-darkNavy">Weekly Progress</h3>
+        <h3 className="text-title text-base md:text-lg">Weekly Progress</h3>
         {/* <button className="text-primary text-xs md:text-sm font-medium flex items-center">
           View Details
           <ArrowRight className="ml-1 h-3 w-3 md:h-4 md:w-4" />
@@ -345,9 +345,9 @@ export default function WeeklyProgress() {
             {[1, 2, 3, 4].map((index) => (
               <div key={index} className="flex flex-col items-center">
                 <div className="relative" style={{ width: circleSize, height: circleSize }}>
-                  <div className="animate-pulse bg-gray-200 rounded-full" style={{ width: circleSize, height: circleSize }}></div>
+                  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-full" style={{ width: circleSize, height: circleSize }}></div>
                 </div>
-                <div className="mt-2 h-4 w-16 animate-pulse bg-gray-200 rounded"></div>
+                <div className="mt-2 h-4 w-16 animate-pulse bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
             ))}
           </>
@@ -365,17 +365,17 @@ export default function WeeklyProgress() {
         )}
       </div>
       
-      <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100">
+      <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100 dark:border-dark-border">
         <div className="flex justify-between items-center text-xs md:text-sm">
-          <span className="text-gray-500">Week Progress</span>
-          <span className="font-medium">{currentDay} of 7 days</span>
+          <span className="text-subtitle">Week Progress</span>
+          <span className="font-medium dark:text-dark-text-primary">{currentDay} of 7 days</span>
         </div>
         <div className="mt-2 grid grid-cols-7 gap-1">
           {[1, 2, 3, 4, 5, 6, 7].map((day) => (
             <div
               key={day}
               className={`h-1.5 md:h-2 rounded-full ${
-                day <= currentDay ? 'bg-primary' : 'bg-gray-200'
+                day <= currentDay ? 'bg-primary dark:bg-dark-accent-purple' : 'bg-gray-200 dark:bg-gray-700'
               }`}
             ></div>
           ))}

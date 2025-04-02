@@ -228,8 +228,8 @@ export default function UserProfilePage() {
       <MainLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-gray-600">Loading user profile...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-dark-accent-purple mx-auto mb-4" />
+            <p className="text-body">Loading user profile...</p>
           </div>
         </div>
       </MainLayout>
@@ -241,15 +241,15 @@ export default function UserProfilePage() {
     return (
       <MainLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md p-6 bg-white rounded-lg shadow-sm">
-            <div className="text-red-500 mb-4">
+          <div className="text-center max-w-md p-6 card">
+            <div className="text-red-500 dark:text-red-400 mb-4">
               <Shield className="h-12 w-12 mx-auto" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Profile Error</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h2 className="text-xl font-bold text-title mb-2">Profile Error</h2>
+            <p className="text-body mb-4">{error}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium"
+              className="px-4 py-2 bg-primary dark:bg-primary/90 text-white rounded-lg text-sm font-medium hover:bg-opacity-90 dark:hover:bg-opacity-100 transition-all"
             >
               Try Again
             </button>
@@ -272,14 +272,14 @@ export default function UserProfilePage() {
         isSubmitting={isSaving}
       >
         {isNewUser && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <CheckCircle className="h-5 w-5 text-blue-600" />
+                <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">Welcome to Effort Tracker Pro!</h3>
-                <div className="mt-1 text-sm text-blue-600">
+                <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">Welcome to Effort Tracker Pro!</h3>
+                <div className="mt-1 text-sm text-blue-600 dark:text-blue-400">
                   <p>Your profile has been automatically created. Please take a moment to fill in your personal details below and click "Save Changes".</p>
                 </div>
               </div>
@@ -288,14 +288,14 @@ export default function UserProfilePage() {
         )}
         
         {saveSuccess && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800">Success!</h3>
-                <div className="mt-1 text-sm text-green-600">
+                <h3 className="text-sm font-medium text-green-800 dark:text-green-300">Success!</h3>
+                <div className="mt-1 text-sm text-green-600 dark:text-green-400">
                   <p>Your profile has been successfully updated.</p>
                 </div>
               </div>
@@ -304,14 +304,14 @@ export default function UserProfilePage() {
         )}
         
         {saveError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <AlertCircle className="h-5 w-5 text-red-600" />
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <div className="mt-1 text-sm text-red-600">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Error</h3>
+                <div className="mt-1 text-sm text-red-600 dark:text-red-400">
                   <p>{saveError}</p>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
             <div 
               onClick={() => setShowProfileUrlModal(true)}
-              className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer group"
+              className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white dark:border-dark-card shadow-lg cursor-pointer group"
               title="Click to update profile picture"
             >
               {userProfile?.profile_image_url ? (
@@ -334,8 +334,8 @@ export default function UserProfilePage() {
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <User className="h-12 w-12 text-gray-400" />
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-dark-bg">
+                  <User className="h-12 w-12 text-gray-400 dark:text-gray-500" />
                 </div>
               )}
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-200">
@@ -347,20 +347,20 @@ export default function UserProfilePage() {
             
             {/* Profile URL Modal */}
             {showProfileUrlModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <div className="fixed inset-0 bg-black bg-opacity-40 dark:bg-opacity-60 flex items-center justify-center z-50">
+                <div className="bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md mx-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium">Update Profile Picture</h3>
+                    <h3 className="text-lg font-medium text-title">Update Profile Picture</h3>
                     <button 
                       onClick={() => setShowProfileUrlModal(false)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       <X className="h-5 w-5" />
                     </button>
                   </div>
                   
                   <div className="mb-4">
-                    <label htmlFor="profileImageUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="profileImageUrl" className="block text-sm font-medium text-body mb-1">
                       Image URL
                     </label>
                     <input 
@@ -369,9 +369,9 @@ export default function UserProfilePage() {
                       value={profileImageUrl}
                       onChange={(e) => setProfileImageUrl(e.target.value)}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-md shadow-sm focus:outline-none focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-secondary"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-subtitle">
                       Enter a valid image URL (JPG, PNG, or GIF)
                     </p>
                   </div>
@@ -380,14 +380,14 @@ export default function UserProfilePage() {
                     <button
                       type="button"
                       onClick={() => setShowProfileUrlModal(false)}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="px-4 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-bg/50"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={handleProfileImageUpdate}
-                      className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-dark disabled:opacity-70"
+                      className="px-4 py-2 bg-primary dark:bg-primary/90 text-white rounded-md text-sm font-medium hover:bg-opacity-90 dark:hover:bg-opacity-100 disabled:opacity-70 transition-all"
                       disabled={isSaving}
                     >
                       {isSaving ? (
@@ -402,215 +402,162 @@ export default function UserProfilePage() {
               </div>
             )}
             
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl font-bold">{userProfile?.first_name} {userProfile?.last_name}</h2>
-              <p className="text-gray-600">Member since {userProfile ? formatDate(userProfile.profile_creation_date) : 'N/A'}</p>
-              <div className="flex items-center justify-center md:justify-start mt-2 space-x-2">
-                <div className="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-md font-medium">
-                  {userProfile?.status_level || 'Member'}
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold text-title mb-1">
+                {userProfile?.first_name} {userProfile?.last_name}
+              </h2>
+              <p className="text-subtitle text-sm mb-2">
+                Member since {userProfile?.created_at ? formatDate(userProfile.created_at) : 'Today'}
+              </p>
+              
+              <div className="flex flex-wrap gap-3">
+                <div className="flex items-center px-3 py-1.5 bg-primary/10 dark:bg-primary/20 rounded-full">
+                  <Flame className="h-4 w-4 text-orange-500 mr-1.5" />
+                  <span className="text-sm font-medium text-primary dark:text-dark-accent-purple">{userProfile?.current_day_streak || 0} day streak</span>
                 </div>
-                <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md font-medium">
-                  {userProfile?.is_active ? 'Active' : 'Inactive'}
+                
+                <div className="flex items-center px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-full">
+                  <Trophy className="h-4 w-4 text-amber-500 mr-1.5" />
+                  <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Best: {userProfile?.longest_day_streak || 0} days</span>
+                </div>
+                
+                <div className="flex items-center px-3 py-1.5 bg-secondary/10 dark:bg-secondary/20 rounded-full">
+                  <Award className="h-4 w-4 text-secondary mr-1.5" />
+                  <span className="text-sm font-medium text-secondary">{userProfile?.total_points || 0} points</span>
                 </div>
               </div>
             </div>
-            
-            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hidden">
-              {/* Change Photo button hidden for now */}
-              Change Photo
-            </button>
           </div>
           
-          <div className="border-b border-gray-200 pb-2">
-            <div className="flex space-x-8 overflow-x-auto">
-              <button type="button" className="text-primary border-b-2 border-primary pb-2 font-medium">
-                Personal Info
-              </button>
-              {/* Security button hidden as requested */}
-              <button type="button" className="text-gray-500 hover:text-gray-700 pb-2 hidden">
-                Security
-              </button>
-              {/* Notifications button disabled as requested */}
-              <button type="button" className="text-gray-400 pb-2 cursor-not-allowed" disabled>
-                Notifications
-              </button>
-              {/* Payment Methods button hidden as requested */}
-              <button type="button" className="text-gray-500 hover:text-gray-700 pb-2 hidden">
-                Payment Methods
-              </button>
-              {/* Privacy button hidden as requested */}
-              <button type="button" className="text-gray-500 hover:text-gray-700 pb-2 hidden">
-                Privacy
-              </button>
-            </div>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input 
-                    type="text" 
-                    defaultValue={userProfile?.first_name || ''} 
-                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
-                    ref={firstNameRef}
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input 
-                    type="text" 
-                    defaultValue={userProfile?.last_name || ''} 
-                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
-                    ref={lastNameRef}
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input 
-                    type="email" 
-                    defaultValue={userProfile?.email || ''} 
-                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
-                    ref={emailRef}
-                    required
-                  />
-                </div>
-                {/* <p className="text-xs text-gray-500 mt-1">This email is used for notifications and account recovery</p> */}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input 
-                    type="tel" 
-                    defaultValue={userProfile?.phone || ''} 
-                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
-                    ref={phoneRef}
-                  />
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-body mb-1">
+                First Name <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
+                <input
+                  type="text"
+                  id="firstName"
+                  ref={firstNameRef}
+                  defaultValue={userProfile?.first_name || ''}
+                  required
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  placeholder="Your first name"
+                />
               </div>
             </div>
             
             <div>
-              {/* <h3 className="text-lg font-medium mb-4">Security Settings</h3> */}
-              
-              <div className="space-y-4 hidden">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hidden">
-                  {/* Change Password section hidden for now */}
-                  <div className="flex items-start">
-                    <Lock className="h-5 w-5 text-gray-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium">Change Password</h4>
-                      <p className="text-sm text-gray-600">Update your password to maintain account security</p>
-                    </div>
-                  </div>
-                  <button type="button" className="btn-secondary text-sm">Update</button>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-start">
-                    <Shield className="h-5 w-5 text-gray-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
-                    </div>
-                  </div>
-                  <button type="button" className="btn-primary text-sm">Enable</button>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-start">
-                    <Bell className="h-5 w-5 text-gray-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium">Notification Preferences</h4>
-                      <p className="text-sm text-gray-600">Manage how you receive updates and alerts</p>
-                    </div>
-                  </div>
-                  <button type="button" className="btn-secondary text-sm">Manage</button>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hidden">
-                  {/* Payment Methods section hidden for now */}
-                  <div className="flex items-start">
-                    <CreditCard className="h-5 w-5 text-gray-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium">Payment Methods</h4>
-                      <p className="text-sm text-gray-600">Update your billing information and view payment history</p>
-                    </div>
-                  </div>
-                  <button type="button" className="btn-secondary text-sm">Manage</button>
-                </div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-body mb-1">
+                Last Name <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
+                <input
+                  type="text"
+                  id="lastName"
+                  ref={lastNameRef}
+                  defaultValue={userProfile?.last_name || ''}
+                  required
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  placeholder="Your last name"
+                />
               </div>
             </div>
             
-            <div className="pt-6 border-t border-gray-200">
-              <h3 className="text-lg font-medium mb-4">Activity Statistics</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <div className="flex items-center mb-1">
-                    <Flame className="h-5 w-5 text-orange-500 mr-2" />
-                    <p className="text-sm text-gray-500">Current Streak</p>
-                  </div>
-                  <p className="text-2xl font-bold">{userProfile?.current_day_streak || 0} days</p>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-body mb-1">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
+                <input
+                  type="email"
+                  id="email"
+                  ref={emailRef}
+                  defaultValue={userProfile?.email || ''}
+                  required
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  placeholder="your.email@example.com"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-body mb-1">
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
+                <input
+                  type="tel"
+                  id="phone"
+                  ref={phoneRef}
+                  defaultValue={userProfile?.phone || ''}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold text-title mb-4">Activity Goals</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="dailyGoal" className="block text-sm font-medium text-body mb-1">
+                  Daily Activity Goal
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="dailyGoal"
+                    ref={dailyGoalRef}
+                    defaultValue={userProfile?.daily_goal || 5}
+                    min="1"
+                    className="px-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                    placeholder="5"
+                  />
                 </div>
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <div className="flex items-center mb-1">
-                    <Award className="h-5 w-5 text-amber-500 mr-2" />
-                    <p className="text-sm text-gray-500">Longest Streak</p>
-                  </div>
-                  <p className="text-2xl font-bold">{userProfile?.longest_day_streak || 0} days</p>
-                </div>
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <div className="flex items-center mb-1">
-                    <Trophy className="h-5 w-5 text-primary mr-2" />
-                    <p className="text-sm text-gray-500">Total Points</p>
-                  </div>
-                  <p className="text-2xl font-bold">{userProfile?.total_points || 0}</p>
+                <p className="mt-1 text-xs text-subtitle">
+                  Number of activities you aim to complete each day
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold text-title mb-4">Account Information</h3>
+            
+            <div className="bg-gray-50 dark:bg-dark-bg/50 rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-body">GHL User ID</h4>
+                  <p className="text-sm text-subtitle">{ghlUserId || 'Not available'}</p>
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-center mb-3">
-                  <h4 className="font-medium">Daily Activity Goal</h4>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-body">GHL Location ID</h4>
+                  <p className="text-sm text-subtitle">{ghlLocationId || 'Not available'}</p>
                 </div>
-                <div className="flex items-center">
-                  <div className="relative w-full max-w-xs">
-                    <input 
-                      type="number" 
-                      min="1"
-                      max="50"
-                      defaultValue={userProfile?.daily_goal || 10} 
-                      className="px-4 py-2 bg-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" 
-                      ref={dailyGoalRef}
-                    />
-                  </div>
-                  <p className="ml-3 text-sm text-gray-600">activities per day</p>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-body">Status Level</h4>
+                  <p className="text-sm text-subtitle">{userProfile?.status_level || 'Beginner'}</p>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">This is your target number of activities to complete each day. It will be used in the Daily Progress dashboard.</p>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-body">Total Points</h4>
+                  <p className="text-sm text-subtitle">{userProfile?.total_points || 0}</p>
+                </div>
               </div>
             </div>
           </div>

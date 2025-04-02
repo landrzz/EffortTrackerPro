@@ -11,8 +11,8 @@ export default function Home() {
   return (
     <MainLayout>
       <div className="mb-4 md:mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-darkNavy">Activity Dashboard</h1>
-        <p className="text-sm md:text-base text-gray-600 mt-1">Track your activities and view progress analytics</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-title">Activity Dashboard</h1>
+        <p className="text-sm md:text-base text-subtitle mt-1">Track your activities and view progress analytics</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">

@@ -6,23 +6,81 @@
   :root {
     --background: #F9FAFB;
     --foreground: #1F2937;
+    --card-bg: #FFFFFF;
+    --card-border: transparent;
+    --muted-text: #6B7280;
+    --primary-glow: conic-gradient(
+      from 180deg at 50% 50%,
+      #6B4BFF 0deg,
+      #8B5CF6 55deg,
+      #A78BFA 120deg,
+      #6B4BFF 160deg,
+      transparent 360deg
+    );
+  }
+
+  .dark {
+    --background: #111827;
+    --foreground: #F9FAFB;
+    --card-bg: #1F2937;
+    --card-border: #374151;
+    --muted-text: #9CA3AF;
+    --primary-glow: conic-gradient(
+      from 180deg at 50% 50%,
+      #A78BFA 0deg,
+      #8B5CF6 55deg,
+      #6B4BFF 120deg,
+      #A78BFA 160deg,
+      transparent 360deg
+    );
   }
 
   body {
-    @apply antialiased;
+    @apply antialiased transition-colors duration-200;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl p-5 shadow-sm;
+    @apply bg-white dark:bg-dark-card rounded-xl p-5 shadow-sm dark:shadow-none border border-transparent dark:border-dark-border transition-colors duration-200;
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
   }
   
   .btn-primary {
-    @apply bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-opacity-90 transition-all;
+    @apply bg-primary dark:bg-primary/90 text-white py-2 px-4 rounded-lg font-medium hover:bg-opacity-90 dark:hover:bg-opacity-100 transition-all;
   }
   
   .btn-secondary {
-    @apply bg-white text-primary border border-primary py-2 px-4 rounded-lg font-medium hover:bg-primary hover:bg-opacity-10 transition-all;
+    @apply bg-white dark:bg-dark-card text-primary dark:text-dark-accent-purple border border-primary dark:border-dark-accent-purple py-2 px-4 rounded-lg font-medium hover:bg-primary hover:bg-opacity-10 dark:hover:bg-dark-accent-purple/10 transition-all;
   }
-} 
+
+  /* Custom progress bar for dark mode */
+  .progress-bar {
+    @apply h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden;
+  }
+
+  .progress-bar-fill {
+    @apply h-full bg-primary dark:bg-dark-accent-purple rounded-full transition-all duration-300;
+  }
+
+  /* Stats card for consistent styling */
+  .stats-card {
+    @apply flex flex-col md:flex-row md:items-center p-3 md:p-4 bg-gray-50 dark:bg-dark-bg/50 rounded-lg border border-transparent dark:border-dark-border/50 transition-colors duration-200;
+  }
+
+  /* Text styles with dark mode support */
+  .text-title {
+    @apply text-darkNavy dark:text-dark-text-primary font-semibold transition-colors duration-200;
+  }
+
+  .text-subtitle {
+    @apply text-gray-500 dark:text-dark-text-muted transition-colors duration-200;
+  }
+
+  .text-body {
+    @apply text-gray-600 dark:text-dark-text-secondary transition-colors duration-200;
+  }
+}

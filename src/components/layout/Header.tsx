@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { PlusCircle, Bell, User, Search, Flame, Award, Calendar, Menu, Loader2 } from 'lucide-react'
+import { PlusCircle, Bell, User, Search, Flame, Award, Calendar, Menu, Loader2, Moon, Sun } from 'lucide-react'
 import { useModal } from '@/context/ModalContext'
 import { useNotification } from '@/context/NotificationContext'
 import { useGhl } from '@/context/GhlContext'
+import { useTheme } from '@/context/ThemeContext'
 import { getUserByGhlIds, UserProfile } from '@/lib/userUtils'
 import StreakPopover from '@/components/features/StreakPopover'
 import NotificationsPopover from '@/components/features/NotificationsPopover'
@@ -22,6 +23,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
   const { openRecordActivityModal } = useModal()
   const { notifications, unreadCount, markAllAsRead } = useNotification()
   const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
+  const { theme, toggleTheme } = useTheme()
   const [isStreakPopoverOpen, setIsStreakPopoverOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -121,7 +123,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-10 pl-0 lg:pl-[250px]">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-darkNavy border-b border-gray-200 dark:border-gray-700 z-10 pl-0 lg:pl-[250px]">
         <div className="flex items-center justify-between h-full px-4 lg:px-6">
           <div className="flex items-center">
             {/* Mobile menu button */}
@@ -132,7 +134,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
                 className="mr-3 lg:hidden"
                 aria-label="Open menu"
               >
-                <Menu className="h-6 w-6 text-gray-700" />
+                <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
               </button>
             )}
             
@@ -149,16 +151,30 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
           </div>
           
           <div className="flex items-center space-x-2 lg:space-x-5">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-[42px] w-[42px] lg:h-[46px] lg:w-[46px]"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-amber-400" />
+              ) : (
+                <Moon className="h-5 w-5 text-gray-700" />
+              )}
+            </button>
+            
             {/* Streak Counter - only show on tablet and up */}
             <div 
-              className="hidden sm:flex items-center bg-primary bg-opacity-10 px-2 py-1.5 lg:px-3 lg:py-2 rounded-lg cursor-pointer hover:bg-opacity-20 transition-all h-[42px] lg:h-[46px]"
+              className="hidden sm:flex items-center bg-primary bg-opacity-10 dark:bg-opacity-20 px-2 py-1.5 lg:px-3 lg:py-2 rounded-lg cursor-pointer hover:bg-opacity-20 dark:hover:bg-opacity-30 transition-all h-[42px] lg:h-[46px]"
               title="Your prospecting streak - days in a row you've completed prospecting activities"
               onClick={() => setIsStreakPopoverOpen(true)}
             >
               {isLoading ? (
                 <div className="flex items-center">
                   <Loader2 className="h-4 w-4 animate-spin text-primary mr-2" />
-                  <span className="text-xs text-gray-500">Loading...</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-300">Loading...</span>
                 </div>
               ) : (
                 <div className="flex items-center">
@@ -166,9 +182,9 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
                   <div>
                     <div className="flex items-center">
                       <span className="text-sm lg:text-base font-bold text-primary">{currentStreak}</span>
-                      <span className="text-xs text-gray-500 ml-1 hidden md:inline">day streak</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-300 ml-1 hidden md:inline">day streak</span>
                     </div>
-                    <div className="hidden md:flex items-center text-xs text-gray-500">
+                    <div className="hidden md:flex items-center text-xs text-gray-500 dark:text-gray-300">
                       <Award className="h-3 w-3 mr-1 text-amber-500" />
                       <span>Best: {personalBest}</span>
                     </div>
@@ -192,9 +208,9 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
             </button>
             
             {/* Points - hide on smallest screens */}
-            <div className="hidden xs:flex items-center space-x-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-secondary bg-opacity-20 rounded-lg h-[42px] lg:h-[46px]">
+            <div className="hidden xs:flex items-center space-x-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-secondary bg-opacity-20 dark:bg-opacity-30 rounded-lg h-[42px] lg:h-[46px]">
               <span className="text-secondary font-semibold text-sm">{totalPoints}</span>
-              <span className="text-xs text-gray-500 hidden sm:inline">Points</span>
+              <span className="text-xs text-gray-500 dark:text-gray-300 hidden sm:inline">Points</span>
             </div>
             
             <div className="flex items-center space-x-2 lg:space-x-4">
