@@ -18,7 +18,9 @@ import {
   Save,
   CheckCircle,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  UserPlus,
+  Share2
 } from 'lucide-react'
 import { createActivity } from '@/lib/activityUtils'
 import { useGhl } from '@/context/GhlContext'
@@ -35,12 +37,12 @@ export default function RecordActivityModal({ isOpen, onClose, userId }: RecordA
   const { ghlUserId, ghlLocationId } = useGhl()
   
   const activityTypes = [
-    { id: 'call', name: 'Phone Call', icon: Phone, color: 'bg-blue-500' },
-    { id: 'email', name: 'Email', icon: Mail, color: 'bg-purple-500' },
-    { id: 'meeting', name: 'Meeting', icon: Users, color: 'bg-green-500' },
-    { id: 'message', name: 'Text/Message', icon: MessageSquare, color: 'bg-amber-500' },
-    { id: 'visit', name: 'Site Visit', icon: Home, color: 'bg-red-500' },
-    { id: 'proposal', name: 'Proposal', icon: Briefcase, color: 'bg-indigo-500' },
+    { id: 'call', name: 'Phone Call', icon: Phone, color: 'bg-blue-500', description: '2', tooltip: 'Points awarded once per contact per day' },
+    { id: 'email', name: 'Email', icon: Mail, color: 'bg-purple-500', description: '1', tooltip: 'Points awarded once per contact per day' },
+    { id: 'meeting_referral', name: 'Referral Partner Meeting', icon: Users, color: 'bg-green-500', description: '12' },
+    { id: 'meeting_new_referral', name: 'NEW Referral Partner Meeting', icon: UserPlus, color: 'bg-emerald-500', description: '20' },
+    { id: 'message', name: 'Text/Message', icon: MessageSquare, color: 'bg-amber-500', description: '1', tooltip: 'Points awarded once per contact per day' },
+    { id: 'social_post', name: 'Social Post', icon: Share2, color: 'bg-pink-500', description: '5' },
   ]
   
   const clientTypes = [
@@ -169,8 +171,8 @@ export default function RecordActivityModal({ isOpen, onClose, userId }: RecordA
   }
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 md:p-6 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Close button - positioned absolute for small screens */}
         <button 
           onClick={onClose}
@@ -264,15 +266,16 @@ export default function RecordActivityModal({ isOpen, onClose, userId }: RecordA
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Activity Type
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {activityTypes.map(activityType => (
                     <label 
                       key={activityType.id}
-                      className={`relative flex flex-col items-center p-3 bg-white border ${
+                      className={`relative flex flex-col items-center p-4 bg-white border ${
                         selectedActivityType === activityType.id 
                           ? 'border-primary border-2 bg-primary/5 shadow-sm' 
                           : 'border-gray-200'
                       } rounded-lg cursor-pointer hover:border-primary transition-colors`}
+                      title={activityType.tooltip || ''}
                     >
                       <input 
                         type="radio" 
@@ -286,10 +289,33 @@ export default function RecordActivityModal({ isOpen, onClose, userId }: RecordA
                       <div className={`h-10 w-10 rounded-full ${activityType.color} flex items-center justify-center text-white mb-2`}>
                         <activityType.icon className="h-5 w-5" />
                       </div>
-                      <span className="text-sm">{activityType.name}</span>
+                      <span className="text-sm text-center">{activityType.name}</span>
+                      <div className="flex items-center justify-center">
+                        <p className="text-xs text-gray-500 text-center">{activityType.description}</p>
+                        {activityType.tooltip && (
+                          <div className="ml-1 group relative">
+                            <HelpCircle className="h-3 w-3 text-gray-400" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-48 p-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                              {activityType.tooltip}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </label>
                   ))}
                 </div>
+                
+                {(selectedActivityType === 'call' || selectedActivityType === 'email' || selectedActivityType === 'message') && (
+                  <div className="mt-2 p-3 bg-blue-50 rounded-md border border-blue-100">
+                    <div className="flex items-start">
+                      <AlertCircle className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                      <p className="text-sm text-blue-700">
+                        <strong>Note:</strong> Points for {selectedActivityType === 'call' ? 'phone calls' : selectedActivityType === 'email' ? 'emails' : 'text messages'} are 
+                        awarded only once per contact per day. Additional interactions with the same contact on the same day will be recorded but won't earn additional points.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

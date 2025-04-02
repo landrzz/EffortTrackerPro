@@ -33,7 +33,7 @@ export default function Home() {
         </div>
         
         {/* Metrics and Anniversaries */}
-        <div className="col-span-1 md:col-span-12">
+        <div className="col-span-1 md:col-span-12 hidden">
           <ActivityMetrics />
         </div>
         <div className="col-span-1 md:col-span-12 hidden">

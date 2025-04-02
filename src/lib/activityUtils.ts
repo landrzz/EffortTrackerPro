@@ -24,14 +24,30 @@ export interface NewActivity {
  * Default point values for different activity types
  */
 export const ACTIVITY_POINT_VALUES = {
-  'call': 10,
-  'email': 5,
-  'meeting': 15,
-  'message': 3,
-  'visit': 20,
-  'proposal': 25,
+  'call': 2,
+  'email': 1,
+  'meeting_referral': 12,
+  'meeting_new_referral': 20,
+  'message': 1,
+  'social_post': 5,
   'default': 5
 };
+
+/**
+ * Normalizes a client name for consistent comparison
+ * - Converts to lowercase
+ * - Removes extra spaces
+ * - Removes punctuation
+ * @param name - The client name to normalize
+ * @returns Normalized client name
+ */
+function normalizeClientName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, ' ')  // Replace multiple spaces with a single space
+    .trim()                // Remove leading/trailing spaces
+    .replace(/[^\w\s]/g, ''); // Remove punctuation
+}
 
 /**
  * Creates a new activity in the database
@@ -61,8 +77,42 @@ export async function createActivity(activityData: Omit<NewActivity, 'points'> &
       return null;
     }
     
+    // Check for "per contact per day" rule for call, email, and message activity types
+    const perContactPerDayTypes = ['call', 'email', 'message'];
+    if (perContactPerDayTypes.includes(activityData.activity_type)) {
+      // Check if there's already an activity of this type with this client on the same day
+      const startOfDay = new Date(activityData.activity_date);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(activityData.activity_date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      // Normalize the client name for comparison
+      const normalizedClientName = normalizeClientName(activityData.client_name);
+      
+      // Get all activities of this type for this user on this day
+      const { data: existingActivities } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('user_profile_id', activityData.user_profile_id)
+        .eq('activity_type', activityData.activity_type)
+        .gte('activity_date', startOfDay.toISOString())
+        .lte('activity_date', endOfDay.toISOString());
+      
+      // Check if any of the existing activities have a matching normalized client name
+      const hasMatchingClient = existingActivities?.some(activity => 
+        normalizeClientName(activity.client_name) === normalizedClientName
+      );
+      
+      if (hasMatchingClient) {
+        console.log(`Already recorded a ${activityData.activity_type} with ${activityData.client_name} today. Points will not be awarded again.`);
+        // Set points to 0 for duplicate activities
+        activityData.points = 0;
+      }
+    }
+    
     // Calculate points based on activity type if not provided
-    if (!activityData.points) {
+    if (!activityData.points && activityData.points !== 0) {
       const activityType = activityData.activity_type;
       activityData.points = ACTIVITY_POINT_VALUES[activityType as keyof typeof ACTIVITY_POINT_VALUES] || ACTIVITY_POINT_VALUES.default;
     }

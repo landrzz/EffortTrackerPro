@@ -335,7 +335,11 @@ export async function getTodayActivitiesCount(
     const now = new Date();
     
     // Create a date string in YYYY-MM-DD format for the current day
-    const todayDateString = now.toISOString().split('T')[0]; // Gets YYYY-MM-DD
+    // Use local timezone instead of UTC
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayDateString = `${year}-${month}-${day}`;
     
     console.log('Querying activities for date:', todayDateString);
     
@@ -349,10 +353,12 @@ export async function getTodayActivitiesCount(
     console.log('Query parameters:', queryParams);
     
     // Use a different approach - query with date range instead of LIKE
-    // Start of day in UTC
-    const startOfDay = new Date(todayDateString + 'T00:00:00.000Z');
-    // End of day in UTC
-    const endOfDay = new Date(todayDateString + 'T23:59:59.999Z');
+    // Create start and end of day in local timezone
+    const startOfDay = new Date(todayDateString);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(todayDateString);
+    endOfDay.setHours(23, 59, 59, 999);
     
     console.log('Date range query:', {
       startOfDay: startOfDay.toISOString(),

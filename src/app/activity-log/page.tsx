@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X, Building, RefreshCw } from 'lucide-react'
+import { Search, Calendar, Tag, AlertCircle, Download, Phone, Mail, Users, MessageSquare, Home, Briefcase, Filter, MoreHorizontal, Star, ThumbsUp, X, Building, RefreshCw, UserPlus, Share2 } from 'lucide-react'
 import { useGhl } from '@/context/GhlContext'
 import { getUserActivities, Activity as DbActivity, getUserByGhlIds } from '@/lib/userUtils'
 
@@ -32,10 +32,10 @@ interface Activity {
 const activityTypeConfig: Record<string, { icon: any; color: string; displayName: string }> = {
   'call': { icon: Phone, color: 'bg-blue-500', displayName: 'Phone Call' },
   'email': { icon: Mail, color: 'bg-purple-500', displayName: 'Email' },
-  'meeting': { icon: Users, color: 'bg-green-500', displayName: 'Meeting' },
+  'meeting_referral': { icon: Users, color: 'bg-green-500', displayName: 'Referral Partner Meeting' },
+  'meeting_new_referral': { icon: UserPlus, color: 'bg-emerald-500', displayName: 'NEW Referral Partner Meeting' },
   'message': { icon: MessageSquare, color: 'bg-amber-500', displayName: 'Text/Message' },
-  'visit': { icon: Home, color: 'bg-red-500', displayName: 'Site Visit' },
-  'proposal': { icon: Briefcase, color: 'bg-indigo-500', displayName: 'Proposal' }
+  'social_post': { icon: Share2, color: 'bg-pink-500', displayName: 'Social Post' }
 };
 
 // Map client types to icons
@@ -223,7 +223,7 @@ export default function ActivityLogPage() {
     
     // Filter by activity type
     const activityTypeFilters = filters.filter(f => 
-      ['Phone Call', 'Email', 'Meeting', 'Text/Message', 'Site Visit', 'Proposal'].includes(f)
+      ['Phone Call', 'Email', 'Referral Partner Meeting', 'NEW Referral Partner Meeting', 'Text/Message', 'Social Post'].includes(f)
     );
     
     if (activityTypeFilters.length > 0) {
@@ -382,7 +382,7 @@ export default function ActivityLogPage() {
                     Activity Type
                   </label>
                   <div className="space-y-2">
-                    {['All Types', 'Phone Call', 'Email', 'Meeting', 'Text/Message', 'Site Visit', 'Proposal'].map(type => (
+                    {['All Types', 'Phone Call', 'Email', 'Referral Partner Meeting', 'NEW Referral Partner Meeting', 'Text/Message', 'Social Post'].map(type => (
                       <label key={type} className="flex items-center space-x-2">
                         <input 
                           type="checkbox" 
