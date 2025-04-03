@@ -142,7 +142,11 @@ export default function ActivityCalendar() {
           </span>
           {hasActivity && (
             <div 
-              className={`absolute bottom-1 w-1 h-1 ${goalMet ? 'bg-purple-600' : 'bg-green-500'} rounded-full`}
+              className={`absolute bottom-1 w-1 h-1 ${
+                goalMet 
+                  ? 'dark:bg-green-500 bg-purple-600' 
+                  : 'dark:bg-green-500 bg-purple-600'
+              } rounded-full`}
             ></div>
           )}
         </div>
