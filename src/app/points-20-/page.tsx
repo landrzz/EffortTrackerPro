@@ -227,8 +227,8 @@ export default function PointsPage() {
       <MainLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Award className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-gray-600">Loading reward points...</p>
+            <Award className="h-12 w-12 animate-spin text-primary dark:text-dark-accent-purple mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-300">Loading reward points...</p>
           </div>
         </div>
       </MainLayout>
@@ -240,15 +240,15 @@ export default function PointsPage() {
     return (
       <MainLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md p-6 bg-white rounded-lg shadow-sm">
-            <div className="text-red-500 mb-4">
+          <div className="text-center max-w-md p-6 bg-white dark:bg-dark-card rounded-lg shadow-sm dark:border dark:border-dark-border">
+            <div className="text-red-500 dark:text-red-400 mb-4">
               <Award className="h-12 w-12 mx-auto" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Points Error</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Points Error</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium"
+              className="px-4 py-2 bg-primary dark:bg-primary/90 text-white rounded-lg text-sm font-medium hover:bg-opacity-90 dark:hover:bg-opacity-100 transition-all"
             >
               Try Again
             </button>
@@ -261,19 +261,19 @@ export default function PointsPage() {
   return (
     <MainLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-darkNavy">Reward Points</h1>
-        <p className="text-gray-600 mt-1">Earn points for completing activities!</p>
+        <h1 className="text-3xl font-bold text-darkNavy dark:text-white">Reward Points</h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">Earn points for completing activities!</p>
       </div>
       
       <div className="grid grid-cols-12 gap-6">
         {/* Points Summary */}
         <div className="col-span-12 lg:col-span-4">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="bg-primary p-6 text-white text-center">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm dark:shadow-none dark:border dark:border-dark-border overflow-hidden">
+            <div className="bg-primary dark:bg-primary/90 p-6 text-white text-center">
               <Award className="h-12 w-12 mx-auto mb-2" />
               <h2 className="text-2xl font-bold">{totalPoints} Points</h2>
               <p className="text-sm opacity-80">Your lifetime points</p>
-              <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white text-primary">
+              <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white dark:bg-white/90 dark:text-primary">
                 {userProfile?.status_level || currentStatus.name} Status
               </div>
             </div>
@@ -283,27 +283,27 @@ export default function PointsPage() {
                 <div>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <div className="flex items-center">
-                      <span className="text-gray-600 mr-1">Status Progress</span>
+                      <span className="text-gray-600 dark:text-gray-300 mr-1">Status Progress</span>
                       <button 
                         onClick={() => setShowStatusInfo(!showStatusInfo)}
-                        className="text-gray-400 hover:text-primary"
+                        className="text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-dark-accent-purple"
                       >
                         <Info className="h-3.5 w-3.5" />
                       </button>
                     </div>
                     {nextStatus ? (
-                      <span className="font-medium">{totalPoints}/{nextStatus.minPoints} points</span>
+                      <span className="font-medium text-title dark:text-dark-text-primary">{totalPoints}/{nextStatus.minPoints} points</span>
                     ) : (
-                      <span className="font-medium">Max Level Reached!</span>
+                      <span className="font-medium text-title dark:text-dark-text-primary">Max Level Reached!</span>
                     )}
                   </div>
                   
                   {showStatusInfo && (
-                    <div className="bg-gray-50 p-3 rounded-lg mb-2 text-xs">
-                      <h4 className="font-medium mb-1">Status Levels:</h4>
+                    <div className="bg-gray-50 dark:bg-dark-bg/50 p-3 rounded-lg mb-2 text-xs">
+                      <h4 className="font-medium mb-1 text-title dark:text-dark-text-primary">Status Levels:</h4>
                       <ul className="space-y-1">
                         {STATUS_LEVELS.map((level, index) => (
-                          <li key={index} className="flex justify-between">
+                          <li key={index} className="flex justify-between text-body dark:text-dark-text-secondary">
                             <span>{level.name}</span>
                             <span>{level.minPoints}+ points</span>
                           </li>
@@ -312,62 +312,62 @@ export default function PointsPage() {
                     </div>
                   )}
                   
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 dark:bg-dark-bg/70 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-primary" 
+                      className="h-full bg-primary dark:bg-dark-accent-purple" 
                       style={{ width: `${progressPercentage}%` }}
                     ></div>
                   </div>
                   
                   {nextStatus ? (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Earn {pointsToNextLevel} more points to reach {nextStatus.name} status
                     </p>
                   ) : (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Congratulations! You've reached the highest status level.
                     </p>
                   )}
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3 pb-4 border-b border-gray-100">
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="grid grid-cols-2 gap-3 pb-4 border-b border-gray-100 dark:border-dark-border">
+                  <div className="bg-gray-50 dark:bg-dark-bg/50 p-3 rounded-lg">
                     <div className="flex items-center">
-                      <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
-                      <span className="text-sm font-medium">{monthlyPoints}</span>
+                      <TrendingUp className="h-5 w-5 text-green-500 dark:text-green-400 mr-2" />
+                      <span className="text-sm font-medium text-title dark:text-dark-text-primary">{monthlyPoints}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Points this month</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Points this month</p>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-sm font-medium mb-2">Ways to Earn Points</h3>
+                  <h3 className="text-sm font-medium text-title dark:text-dark-text-primary mb-2">Ways to Earn Points</h3>
                   <ul className="space-y-2 text-sm">
                     <li className="flex justify-between">
-                      <span>Make a client call</span>
-                      <span className="font-medium text-primary">+10 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Make a client call</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+10 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Send email or message</span>
-                      <span className="font-medium text-primary">+5 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Send email or message</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+5 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Attend a meeting</span>
-                      <span className="font-medium text-primary">+15 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Attend a meeting</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+15 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Client visit</span>
-                      <span className="font-medium text-primary">+20 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Client visit</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+20 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Submit a proposal</span>
-                      <span className="font-medium text-primary">+50 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Submit a proposal</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+50 pts</span>
                     </li>
                   </ul>
                 </div>
                 
                 <button 
-                  className="btn-primary w-full"
+                  className="btn-primary w-full dark:bg-dark-accent-purple dark:text-dark-text-primary"
                   onClick={() => setShowEarningOptionsModal(true)}
                 >
                   View All Earning Options
@@ -380,10 +380,10 @@ export default function PointsPage() {
         {/* Rewards and History */}
         <div className="col-span-12 lg:col-span-8">
           {/* Available Rewards section hidden as requested */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6 hidden">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-              <h2 className="text-lg font-semibold flex items-center">
-                <Gift className="h-5 w-5 text-primary mr-2" />
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm dark:shadow-none dark:border dark:border-dark-border overflow-hidden mb-6 hidden">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
+              <h2 className="text-lg font-semibold text-title dark:text-dark-text-primary flex items-center">
+                <Gift className="h-5 w-5 text-primary dark:text-dark-accent-purple mr-2" />
                 Available Rewards
               </h2>
             </div>
@@ -393,10 +393,10 @@ export default function PointsPage() {
                 {rewardOptions.map(reward => (
                   <div 
                     key={reward.id} 
-                    className={`border ${reward.popular ? 'border-primary' : 'border-gray-200'} rounded-lg p-4 relative`}
+                    className={`border ${reward.popular ? 'border-primary' : 'border-gray-200'} dark:border-dark-border rounded-lg p-4 relative`}
                   >
                     {reward.popular && (
-                      <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
+                      <div className="absolute top-2 right-2 bg-primary dark:bg-dark-accent-purple text-white text-xs px-2 py-0.5 rounded-full">
                         Popular
                       </div>
                     )}
@@ -412,15 +412,15 @@ export default function PointsPage() {
                       </div>
                       <div>
                         <h3 className="font-medium">{reward.title}</h3>
-                        <p className="text-sm text-primary font-bold">{reward.points} points</p>
+                        <p className="text-sm text-primary dark:text-dark-accent-purple font-bold">{reward.points} points</p>
                       </div>
                     </div>
                     
                     <button 
                       className={`w-full py-1.5 rounded-lg text-sm font-medium ${
                         reward.points <= totalPoints 
-                          ? 'bg-primary text-white' 
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          ? 'bg-primary dark:bg-dark-accent-purple text-white dark:text-dark-text-primary' 
+                          : 'bg-gray-100 dark:bg-dark-bg/70 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                       }`}
                       disabled={reward.points > totalPoints}
                     >
@@ -431,7 +431,7 @@ export default function PointsPage() {
               </div>
               
               <div className="mt-4 text-center">
-                <button className="text-primary font-medium text-sm flex items-center mx-auto">
+                <button className="text-primary dark:text-dark-accent-purple font-medium text-sm flex items-center mx-auto">
                   View All Rewards
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </button>
@@ -439,20 +439,20 @@ export default function PointsPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-lg font-semibold flex items-center">
-                <Calendar className="h-5 w-5 text-primary mr-2" />
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm dark:shadow-none dark:border dark:border-dark-border overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-title dark:text-dark-text-primary flex items-center">
+                <Calendar className="h-5 w-5 text-primary dark:text-dark-accent-purple mr-2" />
                 Activity & Points History
               </h2>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-400" />
+                  <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search activities..."
-                  className="py-1.5 pl-9 pr-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  className="py-1.5 pl-9 pr-3 text-sm border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-md focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-secondary"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -461,32 +461,32 @@ export default function PointsPage() {
             
             {isActivitiesLoading ? (
               <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
-                <p className="text-gray-500">Loading activities...</p>
+                <Loader2 className="h-6 w-6 animate-spin text-primary dark:text-dark-accent-purple mr-2" />
+                <p className="text-gray-500 dark:text-gray-400">Loading activities...</p>
               </div>
             ) : filteredActivities.length === 0 ? (
               <div className="p-8 text-center">
                 {activities.length === 0 ? (
                   <>
-                    <p className="text-gray-500">No activities found.</p>
-                    <p className="text-sm text-gray-400 mt-1">Complete activities to earn points!</p>
+                    <p className="text-gray-500 dark:text-gray-400">No activities found.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Complete activities to earn points!</p>
                   </>
                 ) : (
                   <>
-                    <p className="text-gray-500">No matching activities found.</p>
-                    <p className="text-sm text-gray-400 mt-1">Try a different search term.</p>
+                    <p className="text-gray-500 dark:text-gray-400">No matching activities found.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try a different search term.</p>
                   </>
                 )}
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-dark-border">
                 {filteredActivities.map(activity => (
-                  <div key={activity.id} className="flex justify-between items-center p-4">
+                  <div key={activity.id} className="flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-dark-bg/30 transition-colors">
                     <div>
-                      <p className="font-medium">{getActivityDescription(activity)}</p>
-                      <p className="text-xs text-gray-500">{formatActivityDate(activity.activity_date)}</p>
+                      <p className="font-medium text-title dark:text-dark-text-primary">{getActivityDescription(activity)}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{formatActivityDate(activity.activity_date)}</p>
                     </div>
-                    <span className="text-green-600 font-bold">+{activity.points} pts</span>
+                    <span className="text-green-600 dark:text-green-400 font-bold">+{activity.points} pts</span>
                   </div>
                 ))}
               </div>
@@ -497,46 +497,46 @@ export default function PointsPage() {
       
       {/* Earning Options Modal */}
       {showEarningOptionsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800 flex items-center">
-                <Award className="h-5 w-5 text-primary mr-2" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg dark:border dark:border-dark-border max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center">
+                <Award className="h-5 w-5 text-primary dark:text-dark-accent-purple mr-2" />
                 Ways to Earn Points
               </h2>
               <button 
                 onClick={() => setShowEarningOptionsModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             
             <div className="p-6 overflow-y-auto flex-1">
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Complete the following activities to earn points and increase your status level. 
                 Higher status levels unlock additional rewards and benefits.
               </p>
               
               <div className="space-y-6">
                 {EARNING_OPTIONS.map(option => (
-                  <div key={option.id} className="bg-gray-50 rounded-lg p-4">
+                  <div key={option.id} className="bg-gray-50 dark:bg-dark-bg/50 rounded-lg p-4">
                     <div className="flex items-start">
-                      <div className="bg-primary bg-opacity-10 p-2 rounded-lg mr-4">
-                        <option.icon className="h-6 w-6 text-primary" />
+                      <div className="bg-primary bg-opacity-10 dark:bg-primary/20 p-2 rounded-lg mr-4">
+                        <option.icon className="h-6 w-6 text-primary dark:text-dark-accent-purple" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-2">
-                          <h3 className="font-semibold text-lg">{option.title}</h3>
-                          <span className="bg-primary text-white text-sm font-bold px-3 py-1 rounded-full">
+                          <h3 className="font-semibold text-lg text-title dark:text-dark-text-primary">{option.title}</h3>
+                          <span className="bg-primary dark:bg-primary/90 text-white text-sm font-bold px-3 py-1 rounded-full">
                             +{option.points} pts
                           </span>
                         </div>
-                        <p className="text-gray-600 mb-3">{option.description}</p>
+                        <p className="text-gray-600 dark:text-gray-300 mb-3">{option.description}</p>
                         
                         <div>
-                          <h4 className="font-medium text-sm text-gray-700 mb-1">Examples:</h4>
-                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-200 mb-1">Examples:</h4>
+                          <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-300 space-y-1">
                             {option.examples.map((example, index) => (
                               <li key={index}>{example}</li>
                             ))}
@@ -548,33 +548,21 @@ export default function PointsPage() {
                 ))}
               </div>
               
-              <div className="mt-6 bg-gray-100 p-4 rounded-lg">
-                <h3 className="font-medium mb-2 flex items-center">
-                  <Info className="h-4 w-4 text-primary mr-1" />
-                  How Points Work
-                </h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  Points are automatically awarded when you complete activities in the system. 
-                  Your points accumulate over time and determine your status level.
-                </p>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">Status Levels:</span>
-                  <ul className="mt-1 space-y-1">
-                    {STATUS_LEVELS.map((level, index) => (
-                      <li key={index} className="flex justify-between">
-                        <span>{level.name}</span>
-                        <span>{level.minPoints}+ points</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="mt-6 bg-gray-100 dark:bg-dark-bg/70 p-4 rounded-lg">
+                <h3 className="font-medium text-title dark:text-dark-text-primary mb-2">Important Notes:</h3>
+                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                  <li>Points are awarded after the activity is recorded in the system</li>
+                  <li>Activities must be properly documented to receive points</li>
+                  <li>Points accumulate over time and contribute to your status level</li>
+                  <li>Higher status levels unlock additional rewards and benefits</li>
+                </ul>
               </div>
             </div>
             
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-dark-bg/50 border-t border-gray-200 dark:border-dark-border">
               <button 
                 onClick={() => setShowEarningOptionsModal(false)}
-                className="btn-primary w-full"
+                className="btn-primary dark:bg-dark-accent-purple dark:text-dark-text-primary"
               >
                 Close
               </button>

@@ -229,7 +229,7 @@ export default function UserProfilePage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-dark-accent-purple mx-auto mb-4" />
-            <p className="text-body">Loading user profile...</p>
+            <p className="text-body dark:text-dark-text-secondary">Loading user profile...</p>
           </div>
         </div>
       </MainLayout>
@@ -245,8 +245,8 @@ export default function UserProfilePage() {
             <div className="text-red-500 dark:text-red-400 mb-4">
               <Shield className="h-12 w-12 mx-auto" />
             </div>
-            <h2 className="text-xl font-bold text-title mb-2">Profile Error</h2>
-            <p className="text-body mb-4">{error}</p>
+            <h2 className="text-xl font-bold text-title dark:text-dark-text-primary mb-2">Profile Error</h2>
+            <p className="text-body dark:text-dark-text-secondary mb-4">{error}</p>
             <button 
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-primary dark:bg-primary/90 text-white rounded-lg text-sm font-medium hover:bg-opacity-90 dark:hover:bg-opacity-100 transition-all"
@@ -323,7 +323,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
             <div 
               onClick={() => setShowProfileUrlModal(true)}
-              className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white dark:border-dark-card shadow-lg cursor-pointer group"
+              className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white dark:border-dark-card-hover shadow-lg cursor-pointer group"
               title="Click to update profile picture"
             >
               {userProfile?.profile_image_url ? (
@@ -334,8 +334,8 @@ export default function UserProfilePage() {
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-dark-bg">
-                  <User className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-dark-bg-secondary">
+                  <User className="h-12 w-12 text-gray-400 dark:text-gray-600" />
                 </div>
               )}
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-200">
@@ -350,7 +350,7 @@ export default function UserProfilePage() {
               <div className="fixed inset-0 bg-black bg-opacity-40 dark:bg-opacity-60 flex items-center justify-center z-50">
                 <div className="bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md mx-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium text-title">Update Profile Picture</h3>
+                    <h3 className="text-lg font-medium text-title dark:text-dark-text-primary">Update Profile Picture</h3>
                     <button 
                       onClick={() => setShowProfileUrlModal(false)}
                       className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
@@ -360,7 +360,7 @@ export default function UserProfilePage() {
                   </div>
                   
                   <div className="mb-4">
-                    <label htmlFor="profileImageUrl" className="block text-sm font-medium text-body mb-1">
+                    <label htmlFor="profileImageUrl" className="block text-sm font-medium text-body dark:text-dark-text-secondary mb-1">
                       Image URL
                     </label>
                     <input 
@@ -369,9 +369,9 @@ export default function UserProfilePage() {
                       value={profileImageUrl}
                       onChange={(e) => setProfileImageUrl(e.target.value)}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-md shadow-sm focus:outline-none focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-secondary"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-md shadow-sm focus:outline-none focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-primary"
                     />
-                    <p className="mt-1 text-xs text-subtitle">
+                    <p className="mt-1 text-xs text-subtitle dark:text-gray-400">
                       Enter a valid image URL (JPG, PNG, or GIF)
                     </p>
                   </div>
@@ -403,7 +403,7 @@ export default function UserProfilePage() {
             )}
             
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-title mb-1">
+              <h2 className="text-xl font-semibold text-title dark:text-dark-text-primary mb-1">
                 {userProfile?.first_name} {userProfile?.last_name}
               </h2>
               <p className="text-subtitle text-sm mb-2">
@@ -423,7 +423,7 @@ export default function UserProfilePage() {
                 
                 <div className="flex items-center px-3 py-1.5 bg-secondary/10 dark:bg-secondary/20 rounded-full">
                   <Award className="h-4 w-4 text-secondary mr-1.5" />
-                  <span className="text-sm font-medium text-secondary">{userProfile?.total_points || 0} points</span>
+                  <span className="text-sm font-medium text-secondary dark:text-secondary/90">{userProfile?.total_points || 0} points</span>
                 </div>
               </div>
             </div>
@@ -431,8 +431,8 @@ export default function UserProfilePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-body mb-1">
-                First Name <span className="text-red-500">*</span>
+              <label htmlFor="firstName" className="block text-sm font-medium text-body dark:text-dark-text-secondary mb-1">
+                First Name <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
@@ -442,15 +442,15 @@ export default function UserProfilePage() {
                   ref={firstNameRef}
                   defaultValue={userProfile?.first_name || ''}
                   required
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-primary"
                   placeholder="Your first name"
                 />
               </div>
             </div>
             
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-body mb-1">
-                Last Name <span className="text-red-500">*</span>
+              <label htmlFor="lastName" className="block text-sm font-medium text-body dark:text-dark-text-secondary mb-1">
+                Last Name <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
@@ -460,15 +460,15 @@ export default function UserProfilePage() {
                   ref={lastNameRef}
                   defaultValue={userProfile?.last_name || ''}
                   required
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-primary"
                   placeholder="Your last name"
                 />
               </div>
             </div>
             
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-body mb-1">
-                Email Address <span className="text-red-500">*</span>
+              <label htmlFor="email" className="block text-sm font-medium text-body dark:text-dark-text-secondary mb-1">
+                Email Address <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
@@ -478,14 +478,14 @@ export default function UserProfilePage() {
                   ref={emailRef}
                   defaultValue={userProfile?.email || ''}
                   required
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-primary"
                   placeholder="your.email@example.com"
                 />
               </div>
             </div>
             
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-body mb-1">
+              <label htmlFor="phone" className="block text-sm font-medium text-body dark:text-dark-text-secondary mb-1">
                 Phone Number
               </label>
               <div className="relative">
@@ -495,7 +495,7 @@ export default function UserProfilePage() {
                   id="phone"
                   ref={phoneRef}
                   defaultValue={userProfile?.phone || ''}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-primary"
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -503,60 +503,62 @@ export default function UserProfilePage() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold text-title mb-4">Activity Goals</h3>
+            <h3 className="text-lg font-semibold text-title dark:text-dark-text-primary mb-4">Activity Goals</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="dailyGoal" className="block text-sm font-medium text-body mb-1">
-                  Daily Activity Goal
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    id="dailyGoal"
-                    ref={dailyGoalRef}
-                    defaultValue={userProfile?.daily_goal || 5}
-                    min="1"
-                    className="px-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple dark:text-dark-text-secondary"
-                    placeholder="5"
-                  />
+            <div className="bg-gray-50 dark:bg-dark-card rounded-lg p-4 border border-gray-200 dark:border-dark-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="dailyGoal" className="block text-sm font-medium text-body dark:text-dark-text-primary mb-1">
+                    Daily Activity Goal
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      id="dailyGoal"
+                      ref={dailyGoalRef}
+                      defaultValue={userProfile?.daily_goal || 5}
+                      min="1"
+                      className="px-4 py-2 w-full border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-accent-purple focus:border-primary dark:focus:border-dark-accent-purple dark:text-dark-text-primary"
+                      placeholder="5"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-subtitle dark:text-dark-text-secondary">
+                    Number of activities you aim to complete each day
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-subtitle">
-                  Number of activities you aim to complete each day
-                </p>
               </div>
             </div>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold text-title mb-4">Account Information</h3>
+            <h3 className="text-lg font-semibold text-title dark:text-dark-text-primary mb-4">Account Information</h3>
             
-            <div className="bg-gray-50 dark:bg-dark-bg/50 rounded-lg p-4 space-y-4">
+            <div className="bg-gray-50 dark:bg-dark-card rounded-lg p-4 space-y-4 border border-gray-200 dark:border-dark-border">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-body">GHL User ID</h4>
-                  <p className="text-sm text-subtitle">{ghlUserId || 'Not available'}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary">GHL User ID</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{ghlUserId || 'Not available'}</p>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-body">GHL Location ID</h4>
-                  <p className="text-sm text-subtitle">{ghlLocationId || 'Not available'}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary">GHL Location ID</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{ghlLocationId || 'Not available'}</p>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-body">Status Level</h4>
-                  <p className="text-sm text-subtitle">{userProfile?.status_level || 'Beginner'}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary">Status Level</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{userProfile?.status_level || 'Beginner'}</p>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-body">Total Points</h4>
-                  <p className="text-sm text-subtitle">{userProfile?.total_points || 0}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary">Total Points</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{userProfile?.total_points || 0}</p>
                 </div>
               </div>
             </div>

@@ -175,29 +175,58 @@ export default function InsightsGraph() {
         
         <div className="flex items-center">
           {isRefreshing && (
-            <RefreshCw className="h-4 w-4 text-gray-400 animate-spin mr-2" />
+            <RefreshCw className="h-4 w-4 text-gray-400 dark:text-gray-500 animate-spin mr-2" />
           )}
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setTimeframe('days')}
-              className={`text-xs px-3 py-1 rounded-md ${
-                timeframe === 'days'
-                  ? 'bg-white text-primary shadow-sm'
-                  : 'text-gray-600'
-              }`}
-            >
-              Days
-            </button>
-            <button
-              onClick={() => setTimeframe('weeks')}
-              className={`text-xs px-3 py-1 rounded-md ${
-                timeframe === 'weeks'
-                  ? 'bg-white text-primary shadow-sm'
-                  : 'text-gray-600'
-              }`}
-            >
-              Weeks
-            </button>
+          <div className="dark:hidden">
+            {/* Light mode version */}
+            <div className="flex bg-gray-100 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setTimeframe('days')}
+                className={`text-xs px-4 py-1.5 transition-colors ${
+                  timeframe === 'days'
+                    ? 'bg-white text-primary font-medium'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Days
+              </button>
+              <button
+                onClick={() => setTimeframe('weeks')}
+                className={`text-xs px-4 py-1.5 transition-colors ${
+                  timeframe === 'weeks'
+                    ? 'bg-white text-primary font-medium'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Weeks
+              </button>
+            </div>
+          </div>
+          
+          <div className="hidden dark:block">
+            {/* Dark mode version - completely separate implementation */}
+            <div className="flex bg-dark-bg-secondary rounded-lg overflow-hidden">
+              <button
+                onClick={() => setTimeframe('days')}
+                className={`text-xs px-4 py-1.5 transition-colors ${
+                  timeframe === 'days'
+                    ? 'bg-dark-card text-dark-accent-purple font-medium'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Days
+              </button>
+              <button
+                onClick={() => setTimeframe('weeks')}
+                className={`text-xs px-4 py-1.5 transition-colors ${
+                  timeframe === 'weeks'
+                    ? 'bg-dark-card text-dark-accent-purple font-medium'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Weeks
+              </button>
+            </div>
           </div>
         </div>
       </div>
