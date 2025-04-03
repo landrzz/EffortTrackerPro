@@ -64,6 +64,7 @@ export default function WeeklyProgress() {
   const { ghlUserId, ghlLocationId, isGhlParamsLoaded } = useGhl()
   const [circleSize, setCircleSize] = useState(80)
   const [currentDay, setCurrentDay] = useState(1)
+  const [currentDayName, setCurrentDayName] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [weeklyStats, setWeeklyStats] = useState([
     { label: 'Activities', percentage: 0, value: '0' },
@@ -99,6 +100,10 @@ export default function WeeklyProgress() {
       // Convert Sunday (0) to 7, and shift others by -1
       day = day === 0 ? 7 : day;
       setCurrentDay(day);
+      
+      // Get day name
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      setCurrentDayName(dayNames[now.getDay()]);
     };
 
     // Calculate initial day
@@ -367,7 +372,7 @@ export default function WeeklyProgress() {
       
       <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100 dark:border-dark-border">
         <div className="flex justify-between items-center text-xs md:text-sm">
-          <span className="text-subtitle">Week Progress</span>
+          <span className="text-subtitle">Week Progress: {currentDayName}</span>
           <span className="font-medium dark:text-dark-text-primary">{currentDay} of 7 days</span>
         </div>
         <div className="mt-2 grid grid-cols-7 gap-1">
