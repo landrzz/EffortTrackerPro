@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { Award, Gift, TrendingUp, Clock, ArrowRight, Calendar, Info, Loader2, X, Phone, Mail, MessageSquare, Users, UserCheck, FileText, Search } from 'lucide-react'
+import { Award, Gift, TrendingUp, Clock, ArrowRight, Calendar, Info, Loader2, X, Phone, Mail, MessageSquare, Users, UserCheck, FileText, Search, UserPlus, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import { useGhl } from '@/context/GhlContext'
 import { 
@@ -22,56 +22,56 @@ const EARNING_OPTIONS = [
   {
     id: 1,
     type: 'call',
-    title: 'Make a client call',
-    points: 10,
-    description: 'Make a phone call to a client to discuss their needs, follow up on previous conversations, or provide updates.',
+    title: 'Phone Call',
+    points: 2,
+    description: 'Make a phone call to a client to discuss their needs, follow up on previous conversations, or provide updates. Points awarded once per contact per day.',
     icon: Phone,
     examples: ['Follow-up call with client', 'Initial consultation call', 'Status update call']
   },
   {
     id: 2,
     type: 'email',
-    title: 'Send an email',
-    points: 5,
-    description: 'Send an email to a client with information, updates, or responses to their inquiries.',
+    title: 'Email',
+    points: 1,
+    description: 'Send an email to a client with information, updates, or responses to their inquiries. Points awarded once per contact per day.',
     icon: Mail,
     examples: ['Follow-up email after meeting', 'Information email with resources', 'Response to client inquiry']
   },
   {
     id: 3,
     type: 'message',
-    title: 'Send a message',
-    points: 5,
-    description: 'Send a direct message to a client through a messaging platform or SMS.',
+    title: 'Text/Message',
+    points: 1,
+    description: 'Send a direct message to a client through a messaging platform or SMS. Points awarded once per contact per day.',
     icon: MessageSquare,
     examples: ['Quick status update', 'Appointment reminder', 'Document request']
   },
   {
     id: 4,
-    type: 'meeting',
-    title: 'Attend a meeting',
-    points: 15,
-    description: 'Participate in a meeting with a client, either in person or virtually.',
+    type: 'meeting_referral',
+    title: 'Meeting w/ Referral Partner',
+    points: 12,
+    description: 'Participate in a meeting with an existing referral partner, either in person or virtually.',
     icon: Users,
-    examples: ['Initial consultation', 'Product demonstration', 'Contract review meeting']
+    examples: ['Regular check-in meeting', 'Relationship building', 'Discussing referral opportunities']
   },
   {
     id: 5,
-    type: 'visit',
-    title: 'Client visit',
+    type: 'meeting_new_referral',
+    title: 'Meeting w/ New Referral Partner',
     points: 20,
-    description: 'Visit a client at their location to provide in-person service or consultation.',
-    icon: UserCheck,
-    examples: ['On-site assessment', 'In-person presentation', 'Property walkthrough']
+    description: 'Participate in a meeting with a new referral partner, either in person or virtually.',
+    icon: UserPlus,
+    examples: ['First introduction meeting', 'New partnership discussion', 'Initial relationship building']
   },
   {
     id: 6,
-    type: 'proposal',
-    title: 'Submit a proposal',
-    points: 50,
-    description: 'Create and submit a formal proposal or quote to a client.',
-    icon: FileText,
-    examples: ['Service proposal', 'Product quote', 'Project scope document']
+    type: 'social_post',
+    title: 'Social Post',
+    points: 5,
+    description: 'Create and publish content on social media platforms to promote your services or share valuable information.',
+    icon: Share2,
+    examples: ['LinkedIn article', 'Facebook business post', 'Industry insights on Twitter']
   }
 ]
 
@@ -344,24 +344,24 @@ export default function PointsPage() {
                   <h3 className="text-sm font-medium text-title dark:text-dark-text-primary mb-2">Ways to Earn Points</h3>
                   <ul className="space-y-2 text-sm">
                     <li className="flex justify-between">
-                      <span className="text-body dark:text-dark-text-secondary">Make a client call</span>
-                      <span className="font-medium text-primary dark:text-dark-accent-purple">+10 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Phone Call</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+2 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-body dark:text-dark-text-secondary">Send email or message</span>
-                      <span className="font-medium text-primary dark:text-dark-accent-purple">+5 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Email or Text</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+1 pt</span>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-body dark:text-dark-text-secondary">Attend a meeting</span>
-                      <span className="font-medium text-primary dark:text-dark-accent-purple">+15 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Referral Partner Meeting</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+12 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-body dark:text-dark-text-secondary">Client visit</span>
+                      <span className="text-body dark:text-dark-text-secondary">New Referral Partner</span>
                       <span className="font-medium text-primary dark:text-dark-accent-purple">+20 pts</span>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-body dark:text-dark-text-secondary">Submit a proposal</span>
-                      <span className="font-medium text-primary dark:text-dark-accent-purple">+50 pts</span>
+                      <span className="text-body dark:text-dark-text-secondary">Social Post</span>
+                      <span className="font-medium text-primary dark:text-dark-accent-purple">+5 pts</span>
                     </li>
                   </ul>
                 </div>
