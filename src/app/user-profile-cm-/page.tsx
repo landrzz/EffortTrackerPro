@@ -533,32 +533,26 @@ export default function UserProfilePage() {
           <div>
             <h3 className="text-lg font-semibold text-title dark:text-dark-text-primary mb-4">Account Information</h3>
             
-            <div className="bg-gray-50 dark:bg-dark-card rounded-lg p-4 space-y-4 border border-gray-200 dark:border-dark-border">
-              <div className="flex items-center justify-between">
+            <div className="bg-gray-50 dark:bg-dark-card rounded-lg p-4 border border-gray-200 dark:border-dark-border">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <h4 className="font-medium text-body dark:text-dark-text-primary">GHL User ID</h4>
-                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{ghlUserId || 'Not available'}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary text-sm">GHL User ID</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary truncate">{ghlUserId || 'Not available'}</p>
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
+                
                 <div>
-                  <h4 className="font-medium text-body dark:text-dark-text-primary">GHL Location ID</h4>
-                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{ghlLocationId || 'Not available'}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary text-sm">GHL Location ID</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary truncate">{ghlLocationId || 'Not available'}</p>
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
+                
                 <div>
-                  <h4 className="font-medium text-body dark:text-dark-text-primary">Status Level</h4>
-                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{userProfile?.status_level || 'Beginner'}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary text-sm">Status Level</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary">{userProfile?.status_level || 'Beginner'}</p>
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
+                
                 <div>
-                  <h4 className="font-medium text-body dark:text-dark-text-primary">Total Points</h4>
-                  <p className="text-sm text-subtitle dark:text-dark-text-secondary mt-1">{userProfile?.total_points || 0}</p>
+                  <h4 className="font-medium text-body dark:text-dark-text-primary text-sm">Total Points</h4>
+                  <p className="text-sm text-subtitle dark:text-dark-text-secondary">{userProfile?.total_points || 0}</p>
                 </div>
               </div>
             </div>
