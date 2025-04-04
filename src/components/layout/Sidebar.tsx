@@ -51,14 +51,14 @@ function SidebarLink({ href, icon: Icon, label, isActive, disabled = false }: Si
       className={`
         flex items-center px-4 py-3 rounded-lg text-base font-medium
         ${isActive 
-          ? 'bg-primary/10 dark:bg-primary/20 text-primary' 
+          ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-white' 
           : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
         }
         transition-all duration-150 ease-in-out
         h-[72px] mb-1
       `}
     >
-      <Icon className={`h-6 w-6 mr-3 ${isActive ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
+      <Icon className={`h-6 w-6 mr-3 ${isActive ? 'text-primary dark:text-white' : 'text-gray-500 dark:text-gray-400'}`} />
       {label}
     </GhlLink>
   )

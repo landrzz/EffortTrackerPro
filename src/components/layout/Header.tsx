@@ -181,7 +181,7 @@ export default function Header({ toggleSidebar, isMobile = false }: HeaderProps)
                   <Flame className="h-4 w-4 lg:h-5 lg:w-5 text-orange-500 mr-1 lg:mr-1.5" />
                   <div>
                     <div className="flex items-center">
-                      <span className="text-sm lg:text-base font-bold text-primary">{currentStreak}</span>
+                      <span className="text-sm lg:text-base font-bold text-primary dark:text-white">{currentStreak}</span>
                       <span className="text-xs text-gray-500 dark:text-gray-300 ml-1 hidden md:inline">day streak</span>
                     </div>
                     <div className="hidden md:flex items-center text-xs text-gray-500 dark:text-gray-300">
